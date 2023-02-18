@@ -41,17 +41,30 @@
 					$startDate = $_POST['startDate'];
 					
 					function getTrade($tradeDate, $dbhandle, $tickers){
-
+						$fullList = [];
 						while ($row = mysqli_fetch_array($tickers)) {
 							// get rid of tickers with bad names for now
 							if( $row[0] != "all" && $row[0] != "brk-b" && $row[0] != "key" && $row[0] != "keys"){
 								// select rows where all 3 indicator conditions are met for selling
 								$newRes = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$tradeDate' AND ($row[0].Close > $row[0].bb_up AND $row[0].rsi > 70 AND $row[0].ult > 70) limit 1");
 								while($test = mysqli_fetch_array($newRes)){
-									echo $test[0]."<br>";
+									//echo $test[0]." ".$row[0]."<br>";
+									$fullList[$row[0]]=$test[0];
 								}
 							}
 						}
+						asort($fullList);
+						//gonna need empty array check
+						$newList = [];
+						forEach($fullList as $key => $value){
+							$sameAs = array_values($fullList)[0] == $value; 
+							if($sameAs){
+								$newList[$key] = $value;
+							}
+							
+						}
+						$randomPick = array_rand($newList, 1);
+						echo $randomPick."<br>".$newList[$randomPick];
 					}	
 
 					getTrade($startDate, $dbhandle, $tickers);
