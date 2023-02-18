@@ -65,6 +65,12 @@
 						}
 						$randomPick = array_rand($newList, 1);
 						echo $randomPick."<br>".$newList[$randomPick];
+						$newDate = explode(' ', $newList[$randomPick])[0];
+						$thisPick = mysqli_query($dbhandle, "SELECT * FROM $randomPick WHERE $randomPick.Date = '$newDate'" );
+
+						$arr = mysqli_fetch_array($thisPick);
+						echo var_dump($arr);
+					
 					}	
 
 					getTrade($startDate, $dbhandle, $tickers);
