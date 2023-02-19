@@ -89,6 +89,14 @@
   //echo "START ".$init." TOTAL ".$sum."<br>";
   asort($fullList);
 
+  echo 
+  '
+  <script>
+  var fullList = '.json_encode($fullList).';
+  localStorage.setItem("fullList", JSON.stringify(fullList));
+  </script>
+  ';
+
   $allTrades = [];
 
   function getTrades($fullList, $startDate, $testArray, $total, $allTrades){
@@ -150,11 +158,19 @@
   
   // echo var_dump($allTrades)."<br>"; 
   $data = json_encode($allTrades);
-  echo $data;
+
+
+  //echo $data;
 
   echo strval(count($allTrades))." trades<br>";
 
-
+  echo 
+  '
+  <script>
+  var allTrades = '.json_encode($allTrades).';
+  localStorage.setItem("allTrades", JSON.stringify(allTrades));
+  </script>
+  ';
 
   // echo var_dump($allTrades);
   // echo var_dump($fullList);
@@ -165,18 +181,15 @@
   echo var_dump($_POST);
 
 ?>
-
-
-<?php
-  if(isset($allTrades)){
-  echo 
-  '
-    <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
-    
-    <script>
-    var xArray = '.json_encode(array_keys($allTrades)).';
-    var yArray = '.json_encode(array_values($allTrades)).';
-    var allTrades = '.json_encode($allTrades).';
+<div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
+<div style="margin:auto">
+  <p id="thisTrade"></p>
+</div>
+<script>
+  if(localStorage.getItem("allTrades")){
+    var allTrades = JSON.parse(localStorage.getItem("allTrades"));
+    var xArray = Object.keys(allTrades);
+    var yArray = Object.values(allTrades);
     
     // Define Data
     var data = [{
@@ -199,30 +212,13 @@
             pts = [data.points[i].x, data.points[i].y.toFixed(2)];
         }
         //alert("Closest point clicked:\n\n"+pts);
-        alert(pts);
-        document.getElementById("clicked").value = pts[0];
-        document.getElementById("clickPost").submit();
+        localStorage.setItem("tradeDate", pts[0]);
+        if(localStorage.getItem("tradeDate")){
+          document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
+        }
     });
-
-    </script>
-    
-  '   
-    ;   
   }
-
-?>
-
-
-
-
-
-  <form method="post" id="clickPost">
-    <label for="clicked">Trade date:</label>
-    <br>
-    <input type="date" id="clicked" name="tradeDate"
-             value="<?php echo array_key_exists('tradeDate', $_POST)?$_POST['tradeDate']:"2015-01-01";?>" min="2015-01-01" max="2023-02-01">
-  </form>
-
+</script>
 </body>
 
 </html>
