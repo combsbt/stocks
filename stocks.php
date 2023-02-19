@@ -134,7 +134,7 @@
       //echo $testArray[$randomPick]."<br>";  
       $total = $total + $total * $testArray[$randomPick];
       //echo $total."<br>";
-      $allTrades[explode(" ", $randomPick)[0]] = $total;
+      $allTrades[explode(" ", $randomPick)[0]] = [$total,$randomPick];
       
     }
     else{
@@ -189,7 +189,10 @@
   if(localStorage.getItem("allTrades")){
     var allTrades = JSON.parse(localStorage.getItem("allTrades"));
     var xArray = Object.keys(allTrades);
-    var yArray = Object.values(allTrades);
+    var yArray = [];
+    Object.keys(allTrades).forEach(date => {
+      yArray.push(allTrades[date][0]);
+    })
     
     // Define Data
     var data = [{
@@ -212,7 +215,9 @@
             pts = [data.points[i].x, data.points[i].y.toFixed(2)];
         }
         //alert("Closest point clicked:\n\n"+pts);
-        localStorage.setItem("tradeDate", pts[0]);
+        localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
+        var fullList = JSON.parse(localStorage.getItem("fullList"));
+        console.log(fullList[pts[0]]);
         if(localStorage.getItem("tradeDate")){
           document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
         }
