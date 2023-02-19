@@ -217,7 +217,7 @@
         //alert("Closest point clicked:\n\n"+pts);
         localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
         var fullList = JSON.parse(localStorage.getItem("fullList"));
-        console.log(fullList[pts[0]]);
+        console.log(fullList[allTrades[pts[0]][1]]);
         if(localStorage.getItem("tradeDate")){
           document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
         }
