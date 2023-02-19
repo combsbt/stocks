@@ -23,6 +23,8 @@
 
 
     <?php
+    	set_time_limit(500);
+    	
       if(array_key_exists('submitButton', $_POST)) {
 					$username = "root";
 					$password = "";
@@ -35,12 +37,16 @@
 					echo "Connected to MySQL<br>";
 
 
-					//execute the SQL Statement
-					$tickers = mysqli_query($dbhandle, "SELECT DISTINCT table_name FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('Date') AND TABLE_SCHEMA='Stocks'" );
+				
 
 					$startDate = $_POST['startDate'];
 					
-					function getTrade($tradeDate, $dbhandle, $tickers){
+					function getTrade($tradeDate, $dbhandle){
+						$start = hrtime(true);
+
+						//execute the SQL Statement
+						$tickers = mysqli_query($dbhandle, "SELECT DISTINCT table_name FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('Date') AND TABLE_SCHEMA='Stocks'" );
+						
 						$fullList = [];
 						while ($row = mysqli_fetch_array($tickers)) {
 							// get rid of tickers with bad names for now
@@ -55,6 +61,7 @@
 						}
 						asort($fullList);
 						//gonna need empty array check
+						
 						$newList = [];
 						forEach($fullList as $key => $value){
 							$sameAs = array_values($fullList)[0] == $value; 
@@ -63,17 +70,38 @@
 							}
 							
 						}
-						$randomPick = array_rand($newList, 1);
-						echo $randomPick."<br>".$newList[$randomPick];
+						if(count($newList) > 1){
+							$randomPick = array_rand($newList, 1);	
+						}
+						else if(count($newList) == 1){
+							$randomPick = array_keys($newList)[0];
+						}
+						else{
+							return("err");
+						}
+						
+						echo "<br>".$randomPick."<br>".$newList[$randomPick];
 						$newDate = explode(' ', $newList[$randomPick])[0];
 						$thisPick = mysqli_query($dbhandle, "SELECT * FROM $randomPick WHERE $randomPick.Date = '$newDate'" );
 
 						$arr = mysqli_fetch_array($thisPick);
-						echo var_dump($arr);
+						//echo var_dump($arr);
+						$newStart = explode(' ',$arr['Date'])[0];
+						$testDate = date('Y-m-d', strtotime($newStart. ' + 2 days'));
+
+						echo "<br>".$testDate."<br>";
+
+						$end = hrtime(true); 						
+						echo ($end - $start) / 1000000000;   // Seconds
+
+						return getTrade($testDate, $dbhandle);
+
+						//getTrade($newStart, $dbhandle);
 					
 					}	
 
-					getTrade($startDate, $dbhandle, $tickers);
+					$test = getTrade($startDate, $dbhandle);
+					echo "<br>".var_dump($test);
 
 
 					//close the connection
