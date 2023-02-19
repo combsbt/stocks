@@ -17,7 +17,7 @@
   <form method="post">
     <label for="start">Start date:</label>
 		<input type="date" id="start" name="startDate"
-       value="<?php echo $_POST?$_POST['startDate']:"2015-01-01";?>" min="2015-01-01" max="2023-02-01">
+       value="<?php echo $_POST?$_POST['startDate']:"2018-01-01";?>" min="2018-01-01" max="2023-02-01">
     <br>
     <input type="submit" name="submitButton"/>
   </form>
@@ -93,6 +93,8 @@
   '
   <script>
   var fullList = '.json_encode($fullList).';
+  console.log("list");
+  console.log(JSON.stringify(fullList).length);
   localStorage.setItem("fullList", JSON.stringify(fullList));
   </script>
   ';
@@ -216,12 +218,61 @@
         }
         //alert("Closest point clicked:\n\n"+pts);
         localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
+        console.log(Object.keys(allTrades).indexOf(pts[0]));
+        console.log(allTrades[pts[0]][1]);
+        //undefined if last date
+        var nextDate = Object.keys(allTrades)[Object.keys(allTrades).indexOf(pts[0])+1];
+        console.log(nextDate);
         var fullList = JSON.parse(localStorage.getItem("fullList"));
         console.log(fullList[allTrades[pts[0]][1]]);
         if(localStorage.getItem("tradeDate")){
           document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
         }
     });
+  }
+</script>
+
+<script>
+  if(localStorage.getItem("tradeDate") && localStorage.getItem("fullList")){
+    var tradeDate = localStorage.getItem("tradeDate");
+    var fullList = JSON.parse(localStorage.getItem("fullList"));
+    console.log('tradeDate');
+    console.log(tradeDate);
+    console.log(fullList[tradeDate]);
+    // var xArray = Object.keys(allTrades);
+    // var yArray = [];
+    // Object.keys(allTrades).forEach(date => {
+    //   yArray.push(allTrades[date][0]);
+    // })
+    
+    // // Define Data
+    // var data = [{
+    //   x:xArray,
+    //   y:yArray,
+    //   mode:"line"
+    // }];
+    
+    // // Define Layout
+    // var layout = { 
+    //   title: "Date vs. Total"
+    // };
+    
+    // // Display using Plotly
+    // Plotly.newPlot("myPlot", data, layout);
+
+    // myPlot.on("plotly_click", function(data){
+    //     var pts = "";
+    //     for(var i=0; i < data.points.length; i++){
+    //         pts = [data.points[i].x, data.points[i].y.toFixed(2)];
+    //     }
+    //     //alert("Closest point clicked:\n\n"+pts);
+    //     localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
+    //     var fullList = JSON.parse(localStorage.getItem("fullList"));
+    //     console.log(fullList[allTrades[pts[0]][1]]);
+    //     if(localStorage.getItem("tradeDate")){
+    //       document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
+    //     }
+    // });
   }
 </script>
 </body>
