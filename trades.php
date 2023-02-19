@@ -23,7 +23,7 @@
 	    <input type="submit" name="submitButton"/>
     </form>
 <?php
-	if(array_key_exists('submitButton', $_POST)) {
+	if(array_key_exists('submitButton', $_POST) && !array_key_exists('allTrades', $_POST)) {
 	$username = "root";
 	$password = "";
 	$hostname = "localhost"; 
@@ -142,7 +142,22 @@
 	$end = hrtime(true); 						
 	echo (($end - $start) / 1000000000)." seconds<br>";
 
+	echo 
+	'
+	<script>
+		var tradesPost = '.json_encode($allTrades).';
+		document.getElementById("trades").value = tradesPost[0];
+		document.getElementById("postTrades").submit();
+	</script>
+	';
 	
+	// echo var_dump($allTrades);
+	// echo var_dump($fullList);
+
+	//close the connection
+	mysqli_close($dbhandle);
+}
+if(array_key_exists('allTrades', $_POST)){	
 	// echo var_dump($allTrades)."<br>"; 
 		echo 
 	'
@@ -185,18 +200,15 @@
 		echo strval(count($allTrades))." trades<br>";
 
 
-
-	// echo var_dump($allTrades);
-	// echo var_dump($fullList);
-
-	//close the connection
-	mysqli_close($dbhandle);
 }
 	echo var_dump($_POST);
 
 ?>
 
-
+<form method="post" id="postTrades">
+	<input type="text" id="trades" name="tradeDate"
+	       value="">
+</form>
 
 <form method="post" id="clickPost">
   <label for="clicked">Trade date:</label>
