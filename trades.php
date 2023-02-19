@@ -61,7 +61,9 @@ foreach ($testArray as $key => $value) {
 echo "START ".$init." TOTAL ".$sum."<br>";
 asort($fullList);
 
-function getTrades($fullList, $startDate, $testArray, $total){
+$allTrades = [];
+
+function getTrades($fullList, $startDate, $testArray, $total, $allTrades){
 	$newList = [];
 	forEach($fullList as $key => $value){
 		if(explode(' ',$key)[0] >= $startDate){
@@ -91,19 +93,30 @@ function getTrades($fullList, $startDate, $testArray, $total){
 	}
 
 	echo $randomPick."<br>";
-	echo $testArray[$randomPick]."<br>";
-	$total = $total + $total * $testArray[$randomPick];
-	echo $total."<br>";
+	
+	if(array_key_exists($randomPick, $testArray)){
+		echo $testArray[$randomPick]."<br>";	
+		$total = $total + $total * $testArray[$randomPick];
+		echo $total."<br>";
+		$allTrades[explode(" ", $randomPick)[0]] = $total;
+		
+	}
+	else{
+		echo "<br>"."no trades"."<br>";
+		echo var_dump($allTrades)."<br>"; 
+		return $allTrades;
+	}
 
 	$newStart = explode(' ',$randomPick)[0];
 	$testDate = date('Y-m-d', strtotime($newStart. ' + 2 days'));
-	getTrades($fullList, $testDate, $testArray, $total);
+	getTrades($fullList, $testDate, $testArray, $total, $allTrades);
+
 
 }
 
-$test = getTrades($fullList, $startDate, $testArray, 10000);
+$test = getTrades($fullList, $startDate, $testArray, 10000, $allTrades);
 echo var_dump($test);
-//echo var_dump($testArray);
+echo var_dump($allTrades);
 
 
 //close the connection
