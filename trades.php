@@ -33,7 +33,7 @@ while ($row = mysqli_fetch_array($result)) {
 		$newRes2 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$testDate' limit 1");
 		while($test2 = mysqli_fetch_array($newRes2)){
 			// echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
-			$testArray[explode(" ", $test[0])[0].$row[0]] = ((-1)*($test2["Close"]-$test["Close"]))/$test["Close"];
+			$testArray[explode(" ", $test[0])[0]." ".$row[0]] = ((-1)*($test2["Close"]-$test["Close"]))/$test["Close"];
 		}
 
 	}
@@ -47,7 +47,7 @@ while ($row = mysqli_fetch_array($result)) {
 		$newRes2 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$testDate' limit 1");
 		while($test2 = mysqli_fetch_array($newRes2)){
 			// echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
-			$testArray[explode(" ", $test[0])[0].$row[0]] = (($test2["Close"]-$test["Close"]))/$test["Close"];
+			$testArray[explode(" ", $test[0])[0]." ".$row[0]] = (($test2["Close"]-$test["Close"]))/$test["Close"];
 		}
 	}	
 }
@@ -61,7 +61,7 @@ foreach ($testArray as $key => $value) {
 echo "START ".$init." TOTAL ".$sum."<br>";
 asort($fullList);
 
-function getTrades($fullList, $startDate){
+function getTrades($fullList, $startDate, $testArray, $total){
 	$newList = [];
 	forEach($fullList as $key => $value){
 		if(explode(' ',$key)[0] >= $startDate){
@@ -91,15 +91,19 @@ function getTrades($fullList, $startDate){
 	}
 
 	echo $randomPick."<br>";
+	echo $testArray[$randomPick]."<br>";
+	$total = $total + $total * $testArray[$randomPick];
+	echo $total."<br>";
+
 	$newStart = explode(' ',$randomPick)[0];
 	$testDate = date('Y-m-d', strtotime($newStart. ' + 2 days'));
-	getTrades($fullList, $testDate);
+	getTrades($fullList, $testDate, $testArray, $total);
 
 }
 
-$test = getTrades($fullList, $startDate);
+$test = getTrades($fullList, $startDate, $testArray, 10000);
 echo var_dump($test);
-
+//echo var_dump($testArray);
 
 
 //close the connection
