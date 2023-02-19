@@ -125,51 +125,86 @@
 			
 		}
 		else{
-			// echo var_dump($allTrades)."<br>"; 
-			echo 
-		'
-			<div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
-			
-			<script>
-			var xArray = '.json_encode(array_keys($allTrades)).';
-			var yArray = '.json_encode(array_values($allTrades)).';
-			
-			// Define Data
-			var data = [{
-			  x:xArray,
-			  y:yArray,
-			  mode:"line"
-			}];
-			
-			// Define Layout
-			var layout = { 
-			  title: "Date vs. Total"
-			};
-			
-			// Display using Plotly
-			Plotly.newPlot("myPlot", data, layout);
-			</script>
-			
-		'		
-	;
+			return $allTrades;
 		}
 
 		$newStart = explode(' ',$randomPick)[0];
 		$testDate = date('Y-m-d', strtotime($newStart. ' + 2 days'));
-		getTrades($fullList, $testDate, $testArray, $total, $allTrades);
+		return getTrades($fullList, $testDate, $testArray, $total, $allTrades);
 
 
 	}
 
-	$test = getTrades($fullList, $startDate, $testArray, 10000, $allTrades);
-	//echo var_dump($test);
-	//echo var_dump($allTrades);
+	$start = hrtime(true); //set timer
 
+	$allTrades = getTrades($fullList, $startDate, $testArray, 10000, $allTrades);
+
+	$end = hrtime(true); 						
+	echo (($end - $start) / 1000000000)." seconds<br>";
+
+	
+	// echo var_dump($allTrades)."<br>"; 
+		echo 
+	'
+		<div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
+		
+		<script>
+		var xArray = '.json_encode(array_keys($allTrades)).';
+		var yArray = '.json_encode(array_values($allTrades)).';
+		
+		// Define Data
+		var data = [{
+		  x:xArray,
+		  y:yArray,
+		  mode:"line"
+		}];
+		
+		// Define Layout
+		var layout = { 
+		  title: "Date vs. Total"
+		};
+		
+		// Display using Plotly
+		Plotly.newPlot("myPlot", data, layout);
+
+		myPlot.on("plotly_click", function(data){
+		    var pts = "";
+		    for(var i=0; i < data.points.length; i++){
+		        pts = [data.points[i].x, data.points[i].y.toFixed(2)];
+		    }
+		    //alert("Closest point clicked:\n\n"+pts);
+		    alert(pts);
+		    document.getElementById("clicked").value = pts[0];
+		    document.getElementById("clickPost").submit();
+		});
+
+		</script>
+		
+	'		
+		;
+		echo strval(count($allTrades))." trades<br>";
+
+
+
+	// echo var_dump($allTrades);
+	// echo var_dump($fullList);
 
 	//close the connection
 	mysqli_close($dbhandle);
 }
+	echo var_dump($_POST);
+
 ?>
+
+
+
+<form method="post" id="clickPost">
+  <label for="clicked">Trade date:</label>
+  <input type="date" id="clicked" name="tradeDate"
+	       value="<?php echo array_key_exists('tradeDate', $_POST)?$_POST['tradeDate']:"2015-01-01";?>" min="2015-01-01" max="2023-02-01">
+  <br>
+</form>
+
 </body>
 
 </html>
