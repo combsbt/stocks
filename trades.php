@@ -23,7 +23,7 @@
 	    <input type="submit" name="submitButton"/>
     </form>
 <?php
-	if(array_key_exists('submitButton', $_POST) && !array_key_exists('allTrades', $_POST)) {
+	if(array_key_exists('submitButton', $_POST)) {
 	$username = "root";
 	$password = "";
 	$hostname = "localhost"; 
@@ -142,23 +142,10 @@
 	$end = hrtime(true); 						
 	echo (($end - $start) / 1000000000)." seconds<br>";
 
-	echo 
-	'
-	<script>
-		var tradesPost = '.json_encode($allTrades).';
-		document.getElementById("trades").value = tradesPost[0];
-		document.getElementById("postTrades").submit();
-	</script>
-	';
 	
-	// echo var_dump($allTrades);
-	// echo var_dump($fullList);
-
-	//close the connection
-	mysqli_close($dbhandle);
-}
-if(array_key_exists('allTrades', $_POST)){	
 	// echo var_dump($allTrades)."<br>"; 
+	$data = json_encode($allTrades);
+	echo $data;
 		echo 
 	'
 		<div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
@@ -166,6 +153,7 @@ if(array_key_exists('allTrades', $_POST)){
 		<script>
 		var xArray = '.json_encode(array_keys($allTrades)).';
 		var yArray = '.json_encode(array_values($allTrades)).';
+		var allTrades = '.json_encode($allTrades).';
 		
 		// Define Data
 		var data = [{
@@ -190,6 +178,7 @@ if(array_key_exists('allTrades', $_POST)){
 		    //alert("Closest point clicked:\n\n"+pts);
 		    alert(pts);
 		    document.getElementById("clicked").value = pts[0];
+		    document.getElementById("allTrades").value = JSON.stringify(allTrades);
 		    document.getElementById("clickPost").submit();
 		});
 
@@ -200,21 +189,23 @@ if(array_key_exists('allTrades', $_POST)){
 		echo strval(count($allTrades))." trades<br>";
 
 
+
+	// echo var_dump($allTrades);
+	// echo var_dump($fullList);
+
+	//close the connection
+	mysqli_close($dbhandle);
 }
 	echo var_dump($_POST);
 
 ?>
 
-<form method="post" id="postTrades">
-	<input type="text" id="trades" name="tradeDate"
-	       value="">
-</form>
-
 <form method="post" id="clickPost">
+  <input type="text" id="allTrades" name="allTrades" hidden="true" value="">
   <label for="clicked">Trade date:</label>
+  <br>
   <input type="date" id="clicked" name="tradeDate"
 	       value="<?php echo array_key_exists('tradeDate', $_POST)?$_POST['tradeDate']:"2015-01-01";?>" min="2015-01-01" max="2023-02-01">
-  <br>
 </form>
 
 </body>
