@@ -21,9 +21,15 @@
     <br>
     <input type="submit" name="submitButton"/>
   </form>
-
+  <script>
+    if(localStorage.getItem("startDate")){
+      console.log(localStorage.getItem("startDate"));
+      document.getElementById("start").value = localStorage.getItem("startDate");
+    }
+  </script>
   <form method="post" id="trade">
     <input type="text" id="thisTrade" name="thisTrade" hidden="true" value="">
+    <input type="text" id="tradeInfo" name="tradeInfo" hidden="true" value="">
   </form>
 
 <?php
@@ -43,6 +49,12 @@
   $result = mysqli_query($dbhandle, "SELECT DISTINCT table_name FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('Date') AND TABLE_SCHEMA='Stocks'" );
 
   $startDate = $_POST['startDate'];
+  echo
+  '
+  <script>
+    localStorage.setItem("startDate", '.json_encode($startDate).');
+  </script>
+  ';
   //fetch tha data from the database 
   $testArray = array();
   $fullList = array();
@@ -179,7 +191,7 @@
   //close the connection
   mysqli_close($dbhandle);
 }
-  echo var_dump($_POST);
+  //echo var_dump($_POST);
 
 ?>
 <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
@@ -189,6 +201,10 @@
 <div id="tradePlot" style="width:100%;max-width:700px;margin:auto"></div>
 <script>
   if(localStorage.getItem("allTrades")){
+    if(localStorage.getItem("startDate")){
+      console.log(localStorage.getItem("startDate"));
+      document.getElementById("start").value = localStorage.getItem("startDate");
+    }
     var allTrades = JSON.parse(localStorage.getItem("allTrades"));
     var xArray = Object.keys(allTrades);
     var yArray = [];
@@ -218,14 +234,19 @@
         }
         //alert("Closest point clicked:\n\n"+pts);
         localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
+
         //undefined if last date
         var nextDate = Object.keys(allTrades)[Object.keys(allTrades).indexOf(pts[0])+1];
         localStorage.setItem("nextDate", nextDate);
         console.log(nextDate);
         var fullList = JSON.parse(localStorage.getItem("fullList"));
         console.log(fullList[allTrades[pts[0]][1]]);
+        var tradeInfo = fullList[allTrades[pts[0]][1]];
+        localStorage.setItem("tradeInfo", tradeInfo['rsi']>60?"SELL":"BUY");
+
         if(localStorage.getItem("tradeDate")){
           document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
+          document.getElementById("tradeInfo").innerHTML = localStorage.getItem("tradeInfo");
           plotTrade();
 
         
@@ -236,7 +257,9 @@
       console.log("plotTrade")
       if(localStorage.getItem("tradeDate") && localStorage.getItem("fullList")){
         var tradeDate = localStorage.getItem("tradeDate");
+        var tradeInfo = localStorage.getItem("tradeInfo");
         document.getElementById("thisTrade").value = tradeDate;
+        document.getElementById("tradeInfo").value = tradeInfo;
         document.getElementById("trade").submit();
       }
     }
@@ -273,8 +296,6 @@
     $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$testDate' limit 1");
     $endTrade = mysqli_fetch_array($newRes3);
 
-    echo $thisDate." 00:00:00";
-    echo $plotArray[$thisDate." 00:00:00"];
     echo 
     '
     <script>
@@ -295,7 +316,7 @@
       
       // Define Layout
       var layout = { 
-        title: '.json_encode($_POST['thisTrade']).'
+        title: '.json_encode($_POST['thisTrade']).'+" "+'.json_encode($_POST['tradeInfo']).'
       };
       
       // Display using Plotly
