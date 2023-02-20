@@ -259,7 +259,7 @@
     $thisDate = explode(' ',$_POST['thisTrade'])[0];
     $ticker =   explode(' ',$_POST['thisTrade'])[1];
     $startDate = date('Y-m-d', strtotime($thisDate. ' - 28 days'));
-    $endDate = date('Y-m-d', strtotime($thisDate. ' + 5 days'));
+    $endDate = date('Y-m-d', strtotime($thisDate. ' + 10 days'));
     // test 2 days later to see if sell was profitable
     $plotArray = [];
     $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$startDate' AND $ticker.Date <= '$endDate' ");
@@ -267,6 +267,14 @@
       // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
       $plotArray[$test2['Date']] = $test2["Close"];
     }
+
+    $testDate = date('Y-m-d', strtotime($thisDate. ' + 2 days'));
+    // test 2 days later to see if sell was profitable
+    $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$testDate' limit 1");
+    $endTrade = mysqli_fetch_array($newRes3);
+
+    echo $thisDate." 00:00:00";
+    echo $plotArray[$thisDate." 00:00:00"];
     echo 
     '
     <script>
@@ -278,29 +286,20 @@
         x:xArray,
         y:yArray,
         mode:"line"
-      }];
+      },
+      {
+        x:['.json_encode($thisDate." 00:00:00").','.json_encode($endTrade[0]).'],
+        y:['.json_encode($plotArray[$thisDate." 00:00:00"]).','.json_encode($endTrade['Close']).'],
+        mode:"markers"
+        }];
       
       // Define Layout
       var layout = { 
-        title: "Date vs. Total"
+        title: '.json_encode($_POST['thisTrade']).'
       };
       
       // Display using Plotly
       Plotly.newPlot("tradePlot", data, layout);
-
-      tradePlot.on("plotly_click", function(data){
-          var pts = "";
-          for(var i=0; i < data.points.length; i++){
-              pts = [data.points[i].x, data.points[i].y.toFixed(2)];
-          }
-          //alert("Closest point clicked:\n\n"+pts);
-          localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
-          var fullList = JSON.parse(localStorage.getItem("fullList"));
-          console.log(fullList[allTrades[pts[0]][1]]);
-          if(localStorage.getItem("tradeDate")){
-            document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
-          }
-      });
     </script>
     ';
 
