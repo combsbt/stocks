@@ -236,49 +236,76 @@
       console.log("plotTrade")
       if(localStorage.getItem("tradeDate") && localStorage.getItem("fullList")){
         var tradeDate = localStorage.getItem("tradeDate");
-        document.getElementById("thisTrade").value = JSON.stringify(tradeDate);
+        document.getElementById("thisTrade").value = tradeDate;
         document.getElementById("trade").submit();
-        // var xArray = Object.keys(allTrades);
-        // var yArray = [];
-        // Object.keys(allTrades).forEach(date => {
-        //   yArray.push(allTrades[date][0]);
-        // })
-        
-        // // Define Data
-        // var data = [{
-        //   x:xArray,
-        //   y:yArray,
-        //   mode:"line"
-        // }];
-        
-        // // Define Layout
-        // var layout = { 
-        //   title: "Date vs. Total"
-        // };
-        
-        // // Display using Plotly
-        // Plotly.newPlot("myPlot", data, layout);
-
-        // myPlot.on("plotly_click", function(data){
-        //     var pts = "";
-        //     for(var i=0; i < data.points.length; i++){
-        //         pts = [data.points[i].x, data.points[i].y.toFixed(2)];
-        //     }
-        //     //alert("Closest point clicked:\n\n"+pts);
-        //     localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
-        //     var fullList = JSON.parse(localStorage.getItem("fullList"));
-        //     console.log(fullList[allTrades[pts[0]][1]]);
-        //     if(localStorage.getItem("tradeDate")){
-        //       document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
-        //     }
-        // });
       }
     }
   }
 </script>
 <?php
+  //plot the trade with 28 days leading up to it
   if(array_key_exists('thisTrade', $_POST)){
-    echo $_POST['thisTrade'];  
+    $username = "root";
+    $password = "";
+    $hostname = "localhost"; 
+    $database="Stocks";
+
+    //connection to the mysql database,
+    $dbhandle = mysqli_connect($hostname, $username, $password,$database )
+    or die("Unable to connect to MySQL");
+    echo "Connected to MySQL<br>";
+    
+    echo $_POST['thisTrade'];
+    $thisDate = explode(' ',$_POST['thisTrade'])[0];
+    $ticker =   explode(' ',$_POST['thisTrade'])[1];
+    $startDate = date('Y-m-d', strtotime($thisDate. ' - 28 days'));
+    $endDate = date('Y-m-d', strtotime($thisDate. ' + 5 days'));
+    // test 2 days later to see if sell was profitable
+    $plotArray = [];
+    $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$startDate' AND $ticker.Date <= '$endDate' ");
+    while($test2 = mysqli_fetch_array($newRes2)){
+      // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
+      $plotArray[$test2['Date']] = $test2["Close"];
+    }
+    echo 
+    '
+    <script>
+      var xArray = '.json_encode(array_keys($plotArray)).';
+      var yArray = '.json_encode(array_values($plotArray)).';
+      
+      // Define Data
+      var data = [{
+        x:xArray,
+        y:yArray,
+        mode:"line"
+      }];
+      
+      // Define Layout
+      var layout = { 
+        title: "Date vs. Total"
+      };
+      
+      // Display using Plotly
+      Plotly.newPlot("tradePlot", data, layout);
+
+      tradePlot.on("plotly_click", function(data){
+          var pts = "";
+          for(var i=0; i < data.points.length; i++){
+              pts = [data.points[i].x, data.points[i].y.toFixed(2)];
+          }
+          //alert("Closest point clicked:\n\n"+pts);
+          localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
+          var fullList = JSON.parse(localStorage.getItem("fullList"));
+          console.log(fullList[allTrades[pts[0]][1]]);
+          if(localStorage.getItem("tradeDate")){
+            document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
+          }
+      });
+    </script>
+    ';
+
+    //close the connection
+    mysqli_close($dbhandle);
   }
    
 ?>
