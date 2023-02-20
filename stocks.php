@@ -276,9 +276,9 @@
     //connection to the mysql database,
     $dbhandle = mysqli_connect($hostname, $username, $password,$database )
     or die("Unable to connect to MySQL");
-    echo "Connected to MySQL<br>";
+    // echo "Connected to MySQL<br>";
     
-    echo $_POST['thisTrade'];
+    // echo $_POST['thisTrade'];
     $thisDate = explode(' ',$_POST['thisTrade'])[0];
     $ticker =   explode(' ',$_POST['thisTrade'])[1];
     $startDate = date('Y-m-d', strtotime($thisDate. ' - 28 days'));
