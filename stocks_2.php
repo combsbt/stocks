@@ -4,7 +4,7 @@
 
 <head>
   <title>
-  	STONKS
+    STONKS
   </title>
 </head>
  
@@ -16,7 +16,7 @@
 
   <form method="post">
     <label for="start">Start date:</label>
-		<input type="date" id="start" name="startDate"
+    <input type="date" id="start" name="startDate"
        value="2018-01-01" min="2018-01-01" max="2023-02-01">
     <br>
     <input type="submit" name="submitButton"/>
@@ -34,7 +34,6 @@
 
 <?php
   if(array_key_exists('submitButton', $_POST)) {
-  echo '<script>localStorage.setItem("tradeDate", null);</script>';
   $username = "root";
   $password = "";
   $hostname = "localhost"; 
@@ -215,25 +214,10 @@
     
     // Define Data
     var data = [{
-        x:xArray,
-        y:yArray,
-        mode:"line"
-      }];
-
-    if(localStorage.getItem("tradeDate")){
-      let tradeIndex = xArray.indexOf(localStorage.getItem("tradeDate").split(" ")[0])
-      data = [{
-        x:xArray,
-        y:yArray,
-        mode:"line"
-      },
-      {
-        x:[xArray[tradeIndex]],
-        y:[yArray[tradeIndex]],
-        mode:"markers"
-      }]     
-    }
-    
+      x:xArray,
+      y:yArray,
+      mode:"line"
+    }];
     
     // Define Layout
     var layout = { 
