@@ -17,14 +17,13 @@
   <form method="post">
     <label for="start">Start date:</label>
 		<input type="date" id="start" name="startDate"
-       value="<?php echo $_POST?$_POST['startDate']:"2018-01-01";?>" min="2018-01-01" max="2023-02-01">
+       value="2018-01-01" min="2018-01-01" max="2023-02-01">
     <br>
     <input type="submit" name="submitButton"/>
   </form>
 
-  <form method="post" id="trades">
-    <input type="text" id="allTrades" name="allTrades" hidden="true" value="">
-    <input type="text" id="fullList" name="fullList" hidden="true" value="">
+  <form method="post" id="trade">
+    <input type="text" id="thisTrade" name="thisTrade" hidden="true" value="">
   </form>
 
 <?php
@@ -187,6 +186,7 @@
 <div style="margin:auto">
   <p id="thisTrade"></p>
 </div>
+<div id="tradePlot" style="width:100%;max-width:700px;margin:auto"></div>
 <script>
   if(localStorage.getItem("allTrades")){
     var allTrades = JSON.parse(localStorage.getItem("allTrades"));
@@ -218,63 +218,70 @@
         }
         //alert("Closest point clicked:\n\n"+pts);
         localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
-        console.log(Object.keys(allTrades).indexOf(pts[0]));
-        console.log(allTrades[pts[0]][1]);
         //undefined if last date
         var nextDate = Object.keys(allTrades)[Object.keys(allTrades).indexOf(pts[0])+1];
+        localStorage.setItem("nextDate", nextDate);
         console.log(nextDate);
         var fullList = JSON.parse(localStorage.getItem("fullList"));
         console.log(fullList[allTrades[pts[0]][1]]);
         if(localStorage.getItem("tradeDate")){
           document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
+          plotTrade();
+
+        
         }
     });
+
+    function plotTrade(){
+      console.log("plotTrade")
+      if(localStorage.getItem("tradeDate") && localStorage.getItem("fullList")){
+        var tradeDate = localStorage.getItem("tradeDate");
+        document.getElementById("thisTrade").value = JSON.stringify(tradeDate);
+        document.getElementById("trade").submit();
+        // var xArray = Object.keys(allTrades);
+        // var yArray = [];
+        // Object.keys(allTrades).forEach(date => {
+        //   yArray.push(allTrades[date][0]);
+        // })
+        
+        // // Define Data
+        // var data = [{
+        //   x:xArray,
+        //   y:yArray,
+        //   mode:"line"
+        // }];
+        
+        // // Define Layout
+        // var layout = { 
+        //   title: "Date vs. Total"
+        // };
+        
+        // // Display using Plotly
+        // Plotly.newPlot("myPlot", data, layout);
+
+        // myPlot.on("plotly_click", function(data){
+        //     var pts = "";
+        //     for(var i=0; i < data.points.length; i++){
+        //         pts = [data.points[i].x, data.points[i].y.toFixed(2)];
+        //     }
+        //     //alert("Closest point clicked:\n\n"+pts);
+        //     localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
+        //     var fullList = JSON.parse(localStorage.getItem("fullList"));
+        //     console.log(fullList[allTrades[pts[0]][1]]);
+        //     if(localStorage.getItem("tradeDate")){
+        //       document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
+        //     }
+        // });
+      }
+    }
   }
 </script>
-
-<script>
-  if(localStorage.getItem("tradeDate") && localStorage.getItem("fullList")){
-    var tradeDate = localStorage.getItem("tradeDate");
-    var fullList = JSON.parse(localStorage.getItem("fullList"));
-    console.log('tradeDate');
-    console.log(tradeDate);
-    console.log(fullList[tradeDate]);
-    // var xArray = Object.keys(allTrades);
-    // var yArray = [];
-    // Object.keys(allTrades).forEach(date => {
-    //   yArray.push(allTrades[date][0]);
-    // })
-    
-    // // Define Data
-    // var data = [{
-    //   x:xArray,
-    //   y:yArray,
-    //   mode:"line"
-    // }];
-    
-    // // Define Layout
-    // var layout = { 
-    //   title: "Date vs. Total"
-    // };
-    
-    // // Display using Plotly
-    // Plotly.newPlot("myPlot", data, layout);
-
-    // myPlot.on("plotly_click", function(data){
-    //     var pts = "";
-    //     for(var i=0; i < data.points.length; i++){
-    //         pts = [data.points[i].x, data.points[i].y.toFixed(2)];
-    //     }
-    //     //alert("Closest point clicked:\n\n"+pts);
-    //     localStorage.setItem("tradeDate", allTrades[pts[0]][1]);
-    //     var fullList = JSON.parse(localStorage.getItem("fullList"));
-    //     console.log(fullList[allTrades[pts[0]][1]]);
-    //     if(localStorage.getItem("tradeDate")){
-    //       document.getElementById("thisTrade").innerHTML = localStorage.getItem("tradeDate");
-    //     }
-    // });
+<?php
+  if(array_key_exists('thisTrade', $_POST)){
+    echo $_POST['thisTrade'];  
   }
-</script>
+   
+?>
 </body>
 
 </html>
