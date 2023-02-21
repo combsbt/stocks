@@ -34,6 +34,7 @@
 
 <?php
   if(array_key_exists('submitButton', $_POST)) {
+  echo '<script>localStorage.setItem("tradeDate", null);</script>';
   $username = "root";
   $password = "";
   $hostname = "localhost"; 
@@ -214,10 +215,25 @@
     
     // Define Data
     var data = [{
-      x:xArray,
-      y:yArray,
-      mode:"line"
-    }];
+        x:xArray,
+        y:yArray,
+        mode:"line"
+      }];
+
+    if(localStorage.getItem("tradeDate")){
+      let tradeIndex = xArray.indexOf(localStorage.getItem("tradeDate").split(" ")[0])
+      data = [{
+        x:xArray,
+        y:yArray,
+        mode:"line"
+      },
+      {
+        x:[xArray[tradeIndex]],
+        y:[yArray[tradeIndex]],
+        mode:"markers"
+      }]     
+    }
+    
     
     // Define Layout
     var layout = { 
