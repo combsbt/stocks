@@ -209,20 +209,19 @@
     let itmsByDate = {};
     Object.entries(fullList).forEach((itm, idx)=>{
       //console.log(itm);
-      let date = itm[1]["Date"];
+      let date = itm[1]["Date"].split(' ')[0];
       console.log(date);
       if(!dateList.includes(date)){
         dateList.push(date);
         itmsByDate[date] = [];
       }
-      itmsByDate[date].push(idx)
+      itmsByDate[date].push(Object.entries(fullList)[idx][0])
     })
     console.log(dateList)
     console.log(itmsByDate)
     Object.entries(itmsByDate).forEach(itm=>{
       console.log(itm[1].length)
     })
-    console.log(Object.entries(fullList)[4][0])
   }
   
 
