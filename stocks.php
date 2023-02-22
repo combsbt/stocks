@@ -122,7 +122,7 @@
     }
     asort($newList);
     $newerList = [];
-
+    //echo var_dump($newList);
     forEach($newList as $key => $value){
       $sameAs = explode(' ', array_keys($newList)[0])[0] == explode(' ', $key)[0]; 
       if($sameAs){
@@ -138,8 +138,8 @@
       $randomPick = array_keys($newerList)[0];
     }
     else{
-
-      return("err");
+      //echo var_dump($newerList);
+      return($allTrades);
     }
 
     //echo $randomPick."<br>";
