@@ -202,11 +202,21 @@
     let fullList = JSON.parse(localStorage.getItem("fullList"));
     console.log(fullList);
     
-    Object.entries(fullList).forEach(itm=>{
+    let dateList = [];
+    let itmsByDate = {};
+    Object.entries(fullList).forEach((itm, idx)=>{
       //console.log(itm);
-      let date = itm[0].split(" ")[0];
+      let date = itm[1]["Date"];
       console.log(date);
+      if(!dateList.includes(date)){
+        dateList.push(date);
+        itmsByDate[date] = [];
+      }
+      itmsByDate[date].push(idx)
     })
+    console.log(dateList)
+    console.log(itmsByDate)
+
   }
   
 
