@@ -181,8 +181,10 @@
   echo 
   '
   <script>
-  var allTrades = '.json_encode($allTrades).';
-  localStorage.setItem("allTrades", JSON.stringify(allTrades));
+  var fullList = '.json_encode($fullList).';
+  var testArray = '.json_encode($testArray).';
+  localStorage.setItem("fullList", JSON.stringify(fullList));
+  localStorage.setItem("testArray", JSON.stringify(testArray));
   </script>
   ';
 
@@ -199,6 +201,7 @@
 <button onclick = "testFunction()" >Test</button>
 <script>
   function testFunction(){
+    let total = 10000;
     let fullList = JSON.parse(localStorage.getItem("fullList"));
     console.log(fullList);
     
@@ -216,7 +219,10 @@
     })
     console.log(dateList)
     console.log(itmsByDate)
-
+    Object.entries(itmsByDate).forEach(itm=>{
+      console.log(itm[1].length)
+    })
+    console.log(Object.entries(fullList)[4][0])
   }
   
 
