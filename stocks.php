@@ -11,7 +11,7 @@
 <body style="text-align:center;">
      
   <h1 style="color:green;">
-      STONKS
+      STONK$
   </h1>
 
   <form method="post">
