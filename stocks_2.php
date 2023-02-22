@@ -198,30 +198,49 @@
 
 ?>
 
-<button onclick = "testFunction()" >Test</button>
+<button onclick = "testFunction(document.getElementById('start').value)" >Test</button>
 <script>
-  function testFunction(){
+  
+  function testFunction(startDate){
     let total = 10000;
     let fullList = JSON.parse(localStorage.getItem("fullList"));
-    console.log(fullList);
+    let testArray = JSON.parse(localStorage.getItem("testArray"));
+    // console.log(fullList);
+    // console.log(testArray);
     
     let dateList = [];
     let itmsByDate = {};
     Object.entries(fullList).forEach((itm, idx)=>{
       //console.log(itm);
       let date = itm[1]["Date"].split(' ')[0];
-      console.log(date);
       if(!dateList.includes(date)){
         dateList.push(date);
         itmsByDate[date] = [];
       }
       itmsByDate[date].push(Object.entries(fullList)[idx][0])
     })
-    console.log(dateList)
-    console.log(itmsByDate)
+    // console.log(itmsByDate)
     Object.entries(itmsByDate).forEach(itm=>{
-      console.log(itm[1].length)
+      // console.log(itm[1].length)
     })
+
+    function addDays(date, days) {
+      var result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    }
+    let nextDate = addDays(startDate, 2);
+    // console.log(nextDate)
+    console.log(itmsByDate)
+    console.log(startDate)
+    
+    // console.log(dateList)
+    let nextTrade = dateList.find(date => new Date(date) >= new Date(nextDate));
+    console.log(nextTrade)
+    if(nextTrade){
+      return testFunction(new Date(nextTrade))
+    }
+    console.log(dateList)
   }
   
 
