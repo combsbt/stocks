@@ -92,91 +92,8 @@
     } 
   }
   }
-  $init = 10000;
-  $sum = $init;
-  foreach ($testArray as $key => $value) {
-    $sum = $sum + $sum * ($value);
-    // echo $sum."<br>";
-  }
-  //echo "START ".$init." TOTAL ".$sum."<br>";
-  asort($fullList);
-
-  echo 
-  '
-  <script>
-  var fullList = '.json_encode($fullList).';
-  console.log("list");
-  console.log(JSON.stringify(fullList).length);
-  localStorage.setItem("fullList", JSON.stringify(fullList));
-  </script>
-  ';
-
-  $allTrades = [];
-
-  function getTrades($fullList, $startDate, $testArray, $total, $allTrades){
-    $newList = [];
-    forEach($fullList as $key => $value){
-      if(explode(' ',$key)[0] >= $startDate){
-        $newList[$key]=$value;
-      }   
-    }
-    asort($newList);
-    $newerList = [];
-    //echo var_dump($newList);
-    forEach($newList as $key => $value){
-      $sameAs = explode(' ', array_keys($newList)[0])[0] == explode(' ', $key)[0]; 
-      if($sameAs){
-        $newerList[$key] = $value;
-      }
-      
-    }
-
-    if(count($newerList) > 1){
-      $randomPick = array_rand($newerList, 1);  
-    }
-    else if(count($newerList) == 1){
-      $randomPick = array_keys($newerList)[0];
-    }
-    else{
-      //echo var_dump($newerList);
-      return($allTrades);
-    }
-
-    //echo $randomPick."<br>";
-    
-    if(array_key_exists($randomPick, $testArray)){
-      //echo $testArray[$randomPick]."<br>";  
-      $total = $total + $total * $testArray[$randomPick];
-      //echo $total."<br>";
-      $allTrades[explode(" ", $randomPick)[0]] = [$total,$randomPick];
-      
-    }
-    else{
-      return $allTrades;
-    }
-
-    $newStart = explode(' ',$randomPick)[0];
-    $testDate = date('Y-m-d', strtotime($newStart. ' + 2 days'));
-    return getTrades($fullList, $testDate, $testArray, $total, $allTrades);
-
-
-  }
-
-  $start = hrtime(true); //set timer
-
-  $allTrades = getTrades($fullList, $startDate, $testArray, 10000, $allTrades);
-
-  $end = hrtime(true);            
-  echo (($end - $start) / 1000000000)." seconds<br>";
-
   
-  // echo var_dump($allTrades)."<br>"; 
-  $data = json_encode($allTrades);
-
-
-  //echo $data;
-
-  echo strval(count($allTrades))." trades<br>";
+  asort($fullList);
 
   echo 
   '
@@ -188,59 +105,87 @@
   </script>
   ';
 
-  // echo var_dump($allTrades);
-  // echo var_dump($fullList);
-
   //close the connection
   mysqli_close($dbhandle);
 }
-  //echo var_dump($_POST);
 
 ?>
-
-<button onclick = "testFunction(document.getElementById('start').value)" >Test</button>
+<div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
+<button onclick = "testFunction(document.getElementById('start').value, 0)" >Test</button>
 <script>
-  
-  function testFunction(startDate){
-    let total = 10000;
-    let fullList = JSON.parse(localStorage.getItem("fullList"));
-    let testArray = JSON.parse(localStorage.getItem("testArray"));
-    // console.log(fullList);
-    // console.log(testArray);
-    
-    let dateList = [];
-    let itmsByDate = {};
-    Object.entries(fullList).forEach((itm, idx)=>{
-      //console.log(itm);
-      let date = itm[1]["Date"].split(' ')[0];
-      if(!dateList.includes(date)){
-        dateList.push(date);
-        itmsByDate[date] = [];
-      }
-      itmsByDate[date].push(Object.entries(fullList)[idx][0])
-    })
-    // console.log(itmsByDate)
-    Object.entries(itmsByDate).forEach(itm=>{
-      // console.log(itm[1].length)
-    })
+  let total = 10000;
+  fullList = JSON.parse(localStorage.getItem("fullList"));
+  testArray = JSON.parse(localStorage.getItem("testArray"));
+  let dateList = [];
+  let itmsByDate = {};
 
+  Object.entries(fullList).forEach((itm, idx)=>{
+    let date = itm[1]["Date"].split(' ')[0];
+    if(!dateList.includes(date)){
+      dateList.push(date);
+      itmsByDate[date] = [];
+    }
+    itmsByDate[date].push(Object.entries(fullList)[idx][0])
+  })
+  console.log(dateList)
+  localStorage.setItem("dateList", JSON.stringify(dateList));
+  localStorage.setItem("itmsByDate", JSON.stringify(itmsByDate));
+
+  function testFunction(startDate, totals){
+    if (totals === 0){
+      totals = {};
+    }
+    let dateList = JSON.parse(localStorage.getItem("dateList"));
+    let itmsByDate = JSON.parse(localStorage.getItem("itmsByDate"));
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
       return result;
     }
     let nextDate = addDays(startDate, 2);
-    // console.log(nextDate)
-    console.log(itmsByDate)
-    console.log(startDate)
-    
-    // console.log(dateList)
-    let nextTrade = dateList.find(date => new Date(date) >= new Date(nextDate));
-    console.log(nextTrade)
-    if(nextTrade){
-      return testFunction(new Date(nextTrade))
+    let nextTrade = dateList.find(date => new Date(date) >= nextDate);
+    if(itmsByDate[nextTrade]){
+      itmsByDate[nextTrade].forEach(trade=>{
+        let divTotal = total/itmsByDate[nextTrade].length
+        total = total + divTotal*testArray[trade];
+        console.log(trade)
+        console.log(total)
+      })
     }
-    console.log(dateList)
+    if(nextTrade){
+      totals[nextTrade] = total;
+      return testFunction(new Date(nextTrade), totals)
+    }
+    console.log(totals)
+    plotTotals(totals);
+  }
+
+  function plotTotals(totals){
+      var xArray = Object.keys(totals);
+      var yArray = Object.values(totals);
+      
+      // Define Data
+      var data = [{
+        x:xArray,
+        y:yArray,
+        mode:"line"
+      }];
+      
+      // Define Layout
+      var layout = { 
+        title: "Date vs. Total"
+      };
+
+      
+      // Display using Plotly
+      Plotly.newPlot("myPlot", data, layout);
+      myPlot.on("plotly_click", function(data){
+        var pts = "";
+        for(var i=0; i < data.points.length; i++){
+            pts = [data.points[i].x, data.points[i].y.toFixed(2)];
+        }
+        console.log(JSON.parse(localStorage.getItem("itmsByDate"))[pts[0]])
+    });
   }
   
 
