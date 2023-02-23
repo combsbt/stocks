@@ -111,7 +111,12 @@
 
 ?>
 <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
-<button onclick = "testFunction(document.getElementById('start').value, 0)" >Test</button>
+<div>
+  <button onclick = "testFunction(document.getElementById('start').value, 0)" >Test</button>
+</div>
+<br/>
+<div id="buttons">
+</div>
 <script>
   let total = 10000;
   fullList = JSON.parse(localStorage.getItem("fullList"));
@@ -184,7 +189,26 @@
         for(var i=0; i < data.points.length; i++){
             pts = [data.points[i].x, data.points[i].y.toFixed(2)];
         }
-        console.log(JSON.parse(localStorage.getItem("itmsByDate"))[pts[0]])
+        const myNode = document.getElementById("buttons");
+        while (myNode.firstChild) {
+          myNode.removeChild(myNode.lastChild);
+        }
+        let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))[pts[0]];
+        tradeList.forEach(itm=>{
+          console.log(itm);
+          let btn = document.createElement('Button');
+          btn.id = itm;
+          btn.innerHTML = itm;
+          let div = document.createElement('div');
+          let percent = testArray[itm]*100
+          div.innerHTML = percent.toFixed(4) + " %";
+          document.getElementById("buttons").appendChild(btn);
+          document.getElementById("buttons").appendChild(div);
+          let br = document.createElement('br');
+          document.getElementById("buttons").appendChild(br);
+
+        })
+
     });
   }
   
