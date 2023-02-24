@@ -59,6 +59,7 @@
   //fetch tha data from the database 
   $testArray = array();
   $fullList = array();
+  $fullSpy = array();
   while ($row = mysqli_fetch_array($result)) {
     // get rid of tickers with bad names for now
     if( $row[0] != "all" && $row[0] != "brk-b" && $row[0] != "key" && $row[0] != "keys"){
@@ -89,19 +90,27 @@
         // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
         $testArray[explode(" ", $test[0])[0]." ".$row[0]] = (($test2["Close"]-$test["Close"]))/$test["Close"];
       }
-    } 
+    }
+    $testSpy = "spy";
+    $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $testSpy WHERE $testSpy.Date >= '$startDate' ");
+    while($test = mysqli_fetch_array($newRes3)){
+      $fullSpy[explode(" ", $test[0])[0]] = $test["Close"];
+    }
   }
   }
   
   asort($fullList);
+  asort($fullSpy);
 
   echo 
   '
   <script>
   var fullList = '.json_encode($fullList).';
   var testArray = '.json_encode($testArray).';
+  var fullSpy = '.json_encode($fullSpy).';
   localStorage.setItem("fullList", JSON.stringify(fullList));
   localStorage.setItem("testArray", JSON.stringify(testArray));
+  localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
   </script>
   ';
 
@@ -121,6 +130,7 @@
   let total = 10000;
   fullList = JSON.parse(localStorage.getItem("fullList"));
   testArray = JSON.parse(localStorage.getItem("testArray"));
+  fullSpy = JSON.parse(localStorage.getItem("fullSpy"));
   let dateList = [];
   let itmsByDate = {};
 
@@ -168,13 +178,26 @@
   function plotTotals(totals){
       var xArray = Object.keys(totals);
       var yArray = Object.values(totals);
+
+      var spyValues = []; 
+      Object.keys(totals).forEach(itm=>{
+        spyValues.push((fullSpy[itm] * 10000)/Object.entries(fullSpy).sort()[0][1])
+      })
+
       
       // Define Data
       var data = [{
         x:xArray,
         y:yArray,
         mode:"line"
-      }];
+      },
+      {
+
+        x:Object.keys(totals),
+        y:spyValues,
+        mode:"line"
+      }
+      ];
       
       // Define Layout
       var layout = { 
