@@ -19,7 +19,7 @@
     <input type="date" id="start" name="startDate"
        value="2021-11-08" min="2018-01-01" max="2023-02-01">
     <br>
-    <input type="submit" name="submitButton"/>
+    <input type="submit" name="submitButton" id="submitButton"/>
   </form>
   <form method="post" id="trade">
     <input type="text" id="thisTrade" name="thisTrade" hidden="true" value="">
@@ -31,7 +31,7 @@
   <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
   <div id="tradePlot" style="width:100%;max-width:700px;margin:auto"></div>
 <div>
-  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000)" id="testButton" hidden="true">Test</button>
+  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000)" id="testButton" hidden="true">Show Plot</button>
 </div>
 <script>
     if(localStorage.getItem("startDate")){
@@ -185,6 +185,11 @@
 
 <?php
   if(array_key_exists('submitButton', $_POST)) {
+  echo '<script>
+  document.getElementById("testButton").hidden = true;
+  document.getElementById("submitButton").hidden = true;
+  localStorage.setItem("tradePts", false);
+  </script>';
   $username = "root";
   $password = "";
   $hostname = "localhost"; 
@@ -271,7 +276,10 @@
 
   //close the connection
   mysqli_close($dbhandle);
-  echo '<script>document.getElementById("testButton").hidden = false</script>';
+  echo '<script>
+  document.getElementById("testButton").hidden = false
+  document.getElementById("submitButton").hidden = false;
+  </script>';
   echo '
   <script>
   fullList = JSON.parse(localStorage.getItem("fullList"));
