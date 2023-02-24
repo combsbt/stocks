@@ -21,12 +21,6 @@
     <br>
     <input type="submit" name="submitButton"/>
   </form>
-  <script>
-    if(localStorage.getItem("startDate")){
-      console.log(localStorage.getItem("startDate"));
-      document.getElementById("start").value = localStorage.getItem("startDate");
-    }
-  </script>
   <form method="post" id="trade">
     <input type="text" id="thisTrade" name="thisTrade" hidden="true" value="">
     <input type="text" id="tradeInfo" name="tradeInfo" hidden="true" value="">
@@ -35,16 +29,26 @@
   <div id="progress"></div>
   <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
 <div>
-  <button onclick = "testFunction(document.getElementById('start').value, 0)" id="testButton" hidden="true">Test</button>
+  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000)" id="testButton" hidden="true">Test</button>
 </div>
+<script>
+    if(localStorage.getItem("startDate")){
+      console.log(localStorage.getItem("startDate"));
+      document.getElementById("start").value = localStorage.getItem("startDate");
+      document.getElementById('testButton').hidden = false;
+    }
+  </script>
 <br/>
 <div id="buttons">
 </div>
 <script>
 
-  function testFunction(startDate, totals){
+  function testFunction(startDate, totals, total){
     if (totals === 0){
       totals = {};
+      fullList = JSON.parse(localStorage.getItem("fullList"));
+      testArray = JSON.parse(localStorage.getItem("testArray"));
+      fullSpy = JSON.parse(localStorage.getItem("fullSpy"));
     }
     let dateList = JSON.parse(localStorage.getItem("dateList"));
     let itmsByDate = JSON.parse(localStorage.getItem("itmsByDate"));
@@ -63,7 +67,7 @@
     }
     if(nextTrade){
       totals[nextTrade] = total;
-      return testFunction(new Date(nextTrade), totals)
+      return testFunction(new Date(nextTrade), totals, total)
     }
     plotTotals(totals);
     document.getElementById("testButton").hidden = true;
