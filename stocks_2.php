@@ -44,7 +44,6 @@
 <div id="buttons">
 </div>
 <script>
-
   function testFunction(startDate, totals, total){
     if (totals === 0){
       totals = {};
@@ -71,6 +70,7 @@
       totals[nextTrade] = total;
       return testFunction(new Date(nextTrade), totals, total)
     }
+    localStorage.setItem("totals", JSON.stringify(totals));
     plotTotals(totals);
     document.getElementById("testButton").hidden = true;
   }
@@ -78,6 +78,10 @@
   function plotTotals(totals){
       var xArray = Object.keys(totals);
       var yArray = Object.values(totals);
+
+      fullList = JSON.parse(localStorage.getItem("fullList"));
+      testArray = JSON.parse(localStorage.getItem("testArray"));
+      fullSpy = JSON.parse(localStorage.getItem("fullSpy"));
 
       var spyValues = []; 
       Object.keys(totals).forEach(itm=>{
@@ -356,6 +360,30 @@
 
     //close the connection
     mysqli_close($dbhandle);
+    echo '
+    <script>
+      if(localStorage.getItem("totals")){
+        plotTotals(JSON.parse(localStorage.getItem("totals")));
+        document.getElementById("testButton").hidden = true;
+        let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))["'.explode(" ", $_POST["thisTrade"])[0].'"] ;
+        tradeList.forEach(itm=>{
+          console.log(itm);
+          let btn = document.createElement("Button");
+          btn.id = itm;
+          btn.innerHTML = itm;
+          let div = document.createElement("div");
+          let percent = testArray[itm]*100
+          div.innerHTML = percent.toFixed(4) + " %";
+          document.getElementById("buttons").appendChild(btn);
+          document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
+          document.getElementById("buttons").appendChild(div);
+          let br = document.createElement("br");
+          document.getElementById("buttons").appendChild(br);
+
+        })
+      }
+    </script
+    ';
   }
    
 ?>
