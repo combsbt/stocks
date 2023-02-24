@@ -27,7 +27,9 @@
   </form>
   <div id="message"></div>
   <div id="progress"></div>
+  <div id="message2"></div>
   <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
+  <div id="tradePlot" style="width:100%;max-width:700px;margin:auto"></div>
 <div>
   <button onclick = "testFunction(document.getElementById('start').value, 0, 10000)" id="testButton" hidden="true">Test</button>
 </div>
@@ -37,7 +39,7 @@
       document.getElementById("start").value = localStorage.getItem("startDate");
       document.getElementById('testButton').hidden = false;
     }
-  </script>
+</script>
 <br/>
 <div id="buttons">
 </div>
@@ -98,6 +100,30 @@
         name:"s&p500"
       }
       ];
+
+      if(localStorage.getItem("thisTrade")){
+        let thisTrade = JSON.parse(localStorage.getItem("thisTrade"));
+        data = [{
+          x:xArray,
+          y:yArray,
+          mode:"line",
+          name:"strategy"
+        },
+        {
+
+          x:Object.keys(totals),
+          y:spyValues,
+          mode:"line",
+          name:"s&p500"
+        },
+        {
+          x:[thisTrade[0]],
+          y:[yArray[xArray.indexOf(thisTrade[0])]],
+          mode:"markers",
+          name:""
+        }
+        ]   
+      }
       
       // Define Layout
       var layout = { 
@@ -106,12 +132,13 @@
 
       
       // Display using Plotly
-      Plotly.newPlot("myPlot", data, layout);
+      Plotly.newPlot("myPlot", data, layout, totals);
       myPlot.on("plotly_click", function(data){
         var pts = "";
         for(var i=0; i < data.points.length; i++){
             pts = [data.points[i].x, data.points[i].y.toFixed(2)];
         }
+        localStorage.setItem("thisTrade", JSON.stringify(pts));
         const myNode = document.getElementById("buttons");
         while (myNode.firstChild) {
           myNode.removeChild(myNode.lastChild);
@@ -131,7 +158,7 @@
           document.getElementById("buttons").appendChild(br);
 
         })
-
+        plotTotals(totals)
     });
   }
   
@@ -215,6 +242,7 @@
   var fullList = '.json_encode($fullList).';
   var testArray = '.json_encode($testArray).';
   var fullSpy = '.json_encode($fullSpy).';
+  document.getElementById("progress").innerHTML = "Total trades analyzed: '.json_encode($count).'"
   localStorage.setItem("fullList", JSON.stringify(fullList));
   localStorage.setItem("testArray", JSON.stringify(testArray));
   localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
