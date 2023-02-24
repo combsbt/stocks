@@ -101,8 +101,8 @@
       }
       ];
 
-      if(localStorage.getItem("thisTrade")){
-        let thisTrade = JSON.parse(localStorage.getItem("thisTrade"));
+      if(localStorage.getItem("tradePts")){
+        let tradePts = JSON.parse(localStorage.getItem("tradePts"));
         data = [{
           x:xArray,
           y:yArray,
@@ -117,8 +117,8 @@
           name:"s&p500"
         },
         {
-          x:[thisTrade[0]],
-          y:[yArray[xArray.indexOf(thisTrade[0])]],
+          x:[tradePts[0]],
+          y:[yArray[xArray.indexOf(tradePts[0])]],
           mode:"markers",
           name:""
         }
@@ -138,7 +138,7 @@
         for(var i=0; i < data.points.length; i++){
             pts = [data.points[i].x, data.points[i].y.toFixed(2)];
         }
-        localStorage.setItem("thisTrade", JSON.stringify(pts));
+        localStorage.setItem("tradePts", JSON.stringify(pts));
         const myNode = document.getElementById("buttons");
         while (myNode.firstChild) {
           myNode.removeChild(myNode.lastChild);
@@ -153,6 +153,7 @@
           let percent = testArray[itm]*100
           div.innerHTML = percent.toFixed(4) + " %";
           document.getElementById("buttons").appendChild(btn);
+          document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
           document.getElementById("buttons").appendChild(div);
           let br = document.createElement('br');
           document.getElementById("buttons").appendChild(br);
@@ -160,6 +161,19 @@
         })
         plotTotals(totals)
     });
+   
+
+  }
+  function plotTrade(itm){
+    console.log("plotTrade")
+    localStorage.setItem("thisTrade", itm);
+    if(localStorage.getItem("fullList")){
+      var tradeDate = itm.split(" ")[0];
+      var tradeInfo = "tradeInfo";
+      document.getElementById("thisTrade").value = itm;
+      document.getElementById("tradeInfo").value = tradeInfo;
+      document.getElementById("trade").submit();
+    }
   }
   
 
@@ -281,7 +295,70 @@
 }
 
 ?>
+<?php
+  //plot the trade with 28 days leading up to it
+  if(array_key_exists('thisTrade', $_POST)){
+    $username = "root";
+    $password = "";
+    $hostname = "localhost"; 
+    $database="Stocks";
 
+    //connection to the mysql database,
+    $dbhandle = mysqli_connect($hostname, $username, $password,$database )
+    or die("Unable to connect to MySQL");
+    // echo "Connected to MySQL<br>";
+    
+    // echo $_POST['thisTrade'];
+    $thisDate = explode(' ',$_POST['thisTrade'])[0];
+    $ticker =   explode(' ',$_POST['thisTrade'])[1];
+    $startDate = date('Y-m-d', strtotime($thisDate. ' - 28 days'));
+    $endDate = date('Y-m-d', strtotime($thisDate. ' + 20 days'));
+    // test 2 days later to see if sell was profitable
+    $plotArray = [];
+    $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$startDate' AND $ticker.Date <= '$endDate' ");
+    while($test2 = mysqli_fetch_array($newRes2)){
+      // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
+      $plotArray[$test2['Date']] = $test2["Close"];
+    }
+
+    $testDate = date('Y-m-d', strtotime($thisDate. ' + 2 days'));
+    // test 2 days later to see if sell was profitable
+    $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$testDate' limit 1");
+    $endTrade = mysqli_fetch_array($newRes3);
+
+    echo 
+    '
+    <script>
+      var xArray = '.json_encode(array_keys($plotArray)).';
+      var yArray = '.json_encode(array_values($plotArray)).';
+      
+      // Define Data
+      var data = [{
+        x:xArray,
+        y:yArray,
+        mode:"line"
+      },
+      {
+        x:['.json_encode($thisDate." 00:00:00").','.json_encode($endTrade[0]).'],
+        y:['.json_encode($plotArray[$thisDate." 00:00:00"]).','.json_encode($endTrade['Close']).'],
+        mode:"markers"
+        }];
+      
+      // Define Layout
+      var layout = { 
+        title: '.json_encode($_POST['thisTrade']).'+" "+'.json_encode($_POST['tradeInfo']).'
+      };
+      
+      // Display using Plotly
+      Plotly.newPlot("tradePlot", data, layout);
+    </script>
+    ';
+
+    //close the connection
+    mysqli_close($dbhandle);
+  }
+   
+?>
 </body>
 
 </html>
