@@ -160,6 +160,7 @@
           btn.innerHTML = itm;
           let div = document.createElement('div');
           let percent = testArray[itm]*100
+          div.style.color = percent>0?"green":"red";
           div.innerHTML = percent.toFixed(4) + " %";
           document.getElementById("buttons").appendChild(btn);
           document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
@@ -392,6 +393,7 @@
           btn.innerHTML = itm;
           let div = document.createElement("div");
           let percent = testArray[itm]*100
+          div.style.color = percent>0?"green":"red";
           div.innerHTML = percent.toFixed(4) + " %";
           document.getElementById("buttons").appendChild(btn);
           document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
