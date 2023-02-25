@@ -148,6 +148,11 @@
           myNode.removeChild(myNode.lastChild);
         }
         let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))[pts[0]];
+        
+        let info = document.createElement('h2');
+        info.innerHTML = "Trades from " + pts[0];
+        document.getElementById("buttons").appendChild(info);
+
         tradeList.forEach(itm=>{
           console.log(itm);
           let btn = document.createElement('Button');
@@ -341,6 +346,9 @@
     echo 
     '
     <script>
+      var percent = JSON.parse(localStorage.getItem("testArray"))['.json_encode($_POST["thisTrade"]).']*100;
+      var gainOf = percent > 0?" gain of ":" loss of ";
+      var percentBlurb = gainOf + percent.toFixed(4) + "%";
       var xArray = '.json_encode(array_keys($plotArray)).';
       var yArray = '.json_encode(array_values($plotArray)).';
       
@@ -358,7 +366,7 @@
       
       // Define Layout
       var layout = { 
-        title: '.json_encode($_POST['thisTrade']).'+" "+'.json_encode($_POST['tradeInfo']).'
+        title: '.json_encode($_POST['thisTrade']).'+" "+'.json_encode($_POST['tradeInfo']).'+percentBlurb
       };
       
       // Display using Plotly
@@ -374,6 +382,9 @@
         plotTotals(JSON.parse(localStorage.getItem("totals")));
         document.getElementById("testButton").hidden = true;
         let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))["'.explode(" ", $_POST["thisTrade"])[0].'"] ;
+        let info = document.createElement("h2");
+        info.innerHTML = "Trades from " + "'.explode(" ", $_POST["thisTrade"])[0].'";
+        document.getElementById("buttons").appendChild(info);
         tradeList.forEach(itm=>{
           console.log(itm);
           let btn = document.createElement("Button");
