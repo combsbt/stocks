@@ -52,6 +52,11 @@
     if(localStorage.getItem("startDate")){
       console.log(localStorage.getItem("startDate"));
       document.getElementById("start").value = localStorage.getItem("startDate");
+      document.getElementById("rsi").value = parseInt(JSON.parse(localStorage.getItem("rsi")));
+      document.getElementById("rsi2").value = parseInt(JSON.parse(localStorage.getItem("rsi2")));
+      document.getElementById("ult").value = parseInt(JSON.parse(localStorage.getItem("ult")));
+      document.getElementById("ult2").value = parseInt(JSON.parse(localStorage.getItem("ult2")));
+
       document.getElementById('testButton').hidden = false;
     }
 </script>
@@ -195,7 +200,7 @@
     localStorage.setItem("thisTrade", itm);
     if(localStorage.getItem("fullList")){
       var tradeDate = itm.split(" ")[0];
-      var tradeInfo = JSON.parse(localStorage.getItem("fullList"))[itm]['rsi']>60?"SELL":"BUY"
+      var tradeInfo = JSON.parse(localStorage.getItem("fullList"))[itm]['rsi']>50?"SELL":"BUY"
       document.getElementById("thisTrade").value = itm;
       document.getElementById("tradeInfo").value = tradeInfo;
       document.getElementById("heldDays").value = JSON.parse(localStorage.getItem("daysHeld"));
@@ -236,12 +241,16 @@
   $fullList = array();
   $fullSpy = array();
   $count = 0;
+  $rsi = $_POST['rsi'];
+  $rsi2 = $_POST['rsi2'];
+  $ult = $_POST['ult'];
+  $ult2 = $_POST['ult2'];
   while ($row = mysqli_fetch_array($result)) {
     // get rid of tickers with bad names for now
     if( $row[0] != "all" && $row[0] != "brk-b" && $row[0] != "key" && $row[0] != "keys"){
     if(true){
       // select rows where all 3 indicator conditions are met for selling
-      $newRes = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].Close > $row[0].bb_up AND $row[0].rsi > 70 AND $row[0].ult > 70) ");
+      $newRes = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].Close > $row[0].bb_up AND $row[0].rsi > $rsi2 AND $row[0].ult > $ult2) ");
       while($test = mysqli_fetch_array($newRes)){
         $count = $count + 1;
         echo "<script>document.getElementById('progress').innerHTML = ".json_encode($count)."</script>";
@@ -260,7 +269,7 @@
     }
     if(true){
       // select rows where all 3 indicator conditions are met for buying
-      $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].ult < 30 AND $row[0].Close < $row[0].bb_low AND $row[0].rsi < 30) ");
+      $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].ult < $ult AND $row[0].Close < $row[0].bb_low AND $row[0].rsi < $rsi) ");
       while($test = mysqli_fetch_array($newRes3)){
         $count = $count + 1;
         echo "<script>document.getElementById('progress').innerHTML = ".json_encode($count)."</script>";
@@ -294,6 +303,10 @@
   var testArray = '.json_encode($testArray).';
   var fullSpy = '.json_encode($fullSpy).';
   var daysHeld = '.json_encode($_POST["daysHeld"]).';
+  var rsi = '.json_encode($_POST["rsi"]).';
+  var rsi2 = '.json_encode($_POST["rsi2"]).';
+  var ult = '.json_encode($_POST["ult"]).';
+  var ult2 = '.json_encode($_POST["ult2"]).';
   document.getElementById("progress").innerHTML = "Total trades analyzed: '.json_encode($count).'"
   try{
     localStorage.setItem("fullList", JSON.stringify(fullList));  
@@ -306,8 +319,16 @@
   localStorage.setItem("testArray", JSON.stringify(testArray));
   localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
   localStorage.setItem("daysHeld", JSON.stringify(daysHeld));
+  localStorage.setItem("rsi", JSON.stringify(rsi));
+  localStorage.setItem("rsi2", JSON.stringify(rsi2));
+  localStorage.setItem("ult", JSON.stringify(ult));
+  localStorage.setItem("ult2", JSON.stringify(ult2));
   localStorage.setItem("startDate", '.json_encode($startDate).');
   document.getElementById("start").value = '.json_encode($startDate).';
+  document.getElementById("rsi").value = '.json_encode($rsi).';
+  document.getElementById("rsi2").value = '.json_encode($rsi2).';
+  document.getElementById("ult").value = '.json_encode($ult).';
+  document.getElementById("ult2").value = '.json_encode($ult2).';
   document.getElementById("daysHeld").value = '.json_encode($_POST["daysHeld"]).';
   </script>
   ';
