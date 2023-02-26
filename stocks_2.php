@@ -23,6 +23,15 @@
     <label for="daysHeld">Days Held:</label>
     <input type="number" id="daysHeld" name="daysHeld" value="2" min="1" max="5">
     <br>
+    <br>
+    <span>Ult:</span>
+    <input type="number" id="ult" name="ult" value="30" min="1" max="40">
+    <input type="number" id="ult2" name="ult2" value="70" min="60" max="99">
+    <br>
+    <span>RSI:</span>
+    <input type="number" id="rsi" name="rsi" value="30" min="1" max="40">
+    <input type="number" id="rsi2" name="rsi2" value="70" min="60" max="99">
+    <br>
     <input type="submit" name="submitButton" id="submitButton"/>
   </form>
   <form method="post" id="trade">
