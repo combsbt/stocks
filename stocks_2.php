@@ -16,14 +16,20 @@
 
   <form method="post">
     <label for="start">Start date:</label>
+    <br>
     <input type="date" id="start" name="startDate"
        value="2021-11-08" min="2018-01-01" max="2023-02-01">
+    <br>
+    <label for="daysHeld">Days Held:</label>
+    <input type="number" id="daysHeld" name="daysHeld" value="2" min="1" max="5">
     <br>
     <input type="submit" name="submitButton" id="submitButton"/>
   </form>
   <form method="post" id="trade">
     <input type="text" id="thisTrade" name="thisTrade" hidden="true" value="">
     <input type="text" id="tradeInfo" name="tradeInfo" hidden="true" value="">
+    <input type="text" id="heldDays" name="heldDays" hidden="true" value="">
+
   </form>
   <div id="message"></div>
   <div id="progress"></div>
@@ -53,12 +59,13 @@
     }
     let dateList = JSON.parse(localStorage.getItem("dateList"));
     let itmsByDate = JSON.parse(localStorage.getItem("itmsByDate"));
+    let daysHeld = JSON.parse(localStorage.getItem("daysHeld"));
     function addDays(date, days) {
       var result = new Date(date);
       result.setDate(result.getDate() + days);
       return result;
     }
-    let nextDate = addDays(startDate, 2);
+    let nextDate = addDays(startDate, parseInt(daysHeld));
     let nextTrade = dateList.find(date => new Date(date) >= nextDate);
     if(itmsByDate[nextTrade]){
       itmsByDate[nextTrade].forEach(trade=>{
@@ -182,6 +189,7 @@
       var tradeInfo = JSON.parse(localStorage.getItem("fullList"))[itm]['rsi']>60?"SELL":"BUY"
       document.getElementById("thisTrade").value = itm;
       document.getElementById("tradeInfo").value = tradeInfo;
+      document.getElementById("heldDays").value = JSON.parse(localStorage.getItem("daysHeld"));
       document.getElementById("trade").submit();
     }
   }
@@ -230,7 +238,7 @@
       $fullList[explode(" ", $test[0])[0]." ".$row[0]] = $test;
       // echo explode(" ", $test[0])[0]." SELL ".$row[0]." at ".$test["Close"].
       // " check ".date('Y-m-d', strtotime($test[0]. ' + 2 days'))."<br>";
-      $testDate = date('Y-m-d', strtotime($test[0]. ' + 2 days'));
+      $testDate = date('Y-m-d', strtotime($test[0]. ' + '.$_POST["daysHeld"].' days'));
       // test 2 days later to see if sell was profitable
       $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$testDate' limit 1");
       while($test2 = mysqli_fetch_array($newRes2)){
@@ -239,24 +247,24 @@
       }
 
     }
-    $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].ult < 30 AND $row[0].Close < $row[0].bb_low AND $row[0].rsi < 30) ");
-    while($test = mysqli_fetch_array($newRes2)){
+    $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].ult < 30 AND $row[0].Close < $row[0].bb_low AND $row[0].rsi < 30) ");
+    while($test = mysqli_fetch_array($newRes3)){
       $count = $count + 1;
       echo "<script>document.getElementById('progress').innerHTML = ".json_encode($count)."</script>";
       $fullList[explode(" ", $test[0])[0]." ".$row[0]] = $test;
       // echo explode(" ", $test[0])[0]." BUY ".$row[0]." at ".$test["Close"].
       // " check ".date('Y-m-d', strtotime($test[0]. ' + 2 days'))."<br>";
-      $testDate = date('Y-m-d', strtotime($test[0]. ' + 2 days'));
+      $testDate = date('Y-m-d', strtotime($test[0]. ' + '.$_POST["daysHeld"].' days'));
       // test 2 days later to see if sell was profitable
-      $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$testDate' limit 1");
-      while($test2 = mysqli_fetch_array($newRes2)){
+      $newRes4 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$testDate' limit 1");
+      while($test2 = mysqli_fetch_array($newRes4)){
         // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
         $testArray[explode(" ", $test[0])[0]." ".$row[0]] = (($test2["Close"]-$test["Close"]))/$test["Close"];
       }
     }
     $testSpy = "spy";
-    $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $testSpy WHERE $testSpy.Date >= '$startDate' ");
-    while($test = mysqli_fetch_array($newRes3)){
+    $newRes5 = mysqli_query($dbhandle, "SELECT * FROM $testSpy WHERE $testSpy.Date >= '$startDate' ");
+    while($test = mysqli_fetch_array($newRes5)){
       $fullSpy[explode(" ", $test[0])[0]] = $test["Close"];
     }
   }
@@ -271,12 +279,15 @@
   var fullList = '.json_encode($fullList).';
   var testArray = '.json_encode($testArray).';
   var fullSpy = '.json_encode($fullSpy).';
+  var daysHeld = '.json_encode($_POST["daysHeld"]).';
   document.getElementById("progress").innerHTML = "Total trades analyzed: '.json_encode($count).'"
   localStorage.setItem("fullList", JSON.stringify(fullList));
   localStorage.setItem("testArray", JSON.stringify(testArray));
   localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
+  localStorage.setItem("daysHeld", JSON.stringify(daysHeld));
   localStorage.setItem("startDate", '.json_encode($startDate).');
   document.getElementById("start").value = '.json_encode($startDate).';
+  document.getElementById("daysHeld").value = '.json_encode($_POST["daysHeld"]).';
   </script>
   ';
 
@@ -333,16 +344,16 @@
     $endDate = date('Y-m-d', strtotime($thisDate. ' + 20 days'));
     // test 2 days later to see if sell was profitable
     $plotArray = [];
-    $newRes2 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$startDate' AND $ticker.Date <= '$endDate' ");
-    while($test2 = mysqli_fetch_array($newRes2)){
+    $newRes6 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$startDate' AND $ticker.Date <= '$endDate' ");
+    while($test2 = mysqli_fetch_array($newRes6)){
       // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
       $plotArray[$test2['Date']] = $test2["Close"];
     }
 
-    $testDate = date('Y-m-d', strtotime($thisDate. ' + 2 days'));
+    $testDate = date('Y-m-d', strtotime($thisDate. ' + '.$_POST["heldDays"].' days'));
     // test 2 days later to see if sell was profitable
-    $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$testDate' limit 1");
-    $endTrade = mysqli_fetch_array($newRes3);
+    $newRes7 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$testDate' limit 1");
+    $endTrade = mysqli_fetch_array($newRes7);
 
     echo 
     '
