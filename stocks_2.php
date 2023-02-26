@@ -18,7 +18,7 @@
     <label for="start">Start date:</label>
     <br>
     <input type="date" id="start" name="startDate"
-       value="2021-11-08" min="2018-01-01" max="2023-02-01">
+       value="2021-11-08" min="2015-01-01" max="2023-02-01">
     <br>
     <label for="daysHeld">Days Held:</label>
     <input type="number" id="daysHeld" name="daysHeld" value="2" min="1" max="5">
@@ -46,7 +46,7 @@
   <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
   <div id="tradePlot" style="width:100%;max-width:700px;margin:auto"></div>
 <div>
-  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000)" id="testButton" hidden="true">Show Plot</button>
+  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000,0,0,0,0)" id="testButton" hidden="true">Show Plot</button>
 </div>
 <script>
     !function(){function e(t,o){return n?void(n.transaction("s").objectStore("s").get(t).onsuccess=function(e){var t=e.target.result&&e.target.result.v||null;o(t)}):void setTimeout(function(){e(t,o)},100)}var t=window.indexedDB||window.mozIndexedDB||window.webkitIndexedDB||window.msIndexedDB;if(!t)return void console.error("indexDB not supported");var n,o={k:"",v:""},r=t.open("d2",1);r.onsuccess=function(e){n=this.result},r.onerror=function(e){console.error("indexedDB request error"),console.log(e)},r.onupgradeneeded=function(e){n=null;var t=e.target.result.createObjectStore("s",{keyPath:"k"});t.transaction.oncomplete=function(e){n=e.target.db}},window.ldb={get:e,set:function(e,t){o.k=e,o.v=t,n.transaction("s","readwrite").objectStore("s").put(o)}}}();
@@ -66,54 +66,112 @@
 <div id="buttons">
 </div>
 <script>
-  function testFunction(startDate, totals, total){
+  function testFunction(startDate, totals, total, fullList, testArray, fullSpy, dateList){
     if (totals === 0){
       totals = {};
-      fullList = JSON.parse(localStorage.getItem("fullList"));
-      testArray = JSON.parse(localStorage.getItem("testArray"));
-      fullSpy = JSON.parse(localStorage.getItem("fullSpy"));
+      ldb.get('fullList', function (value) {
+        console.log('fullList length ', Object.entries(JSON.parse(value)).length);
+        fullList = JSON.parse(value);
+        //fullList = JSON.parse(localStorage.getItem("fullList"));
+        ldb.get('testArray', function (value) {
+          console.log('testArray length ', Object.entries(JSON.parse(value)).length);
+          testArray = JSON.parse(value);
+          ldb.get('fullSpy', function (value) {
+            fullSpy = JSON.parse(value);
+            ldb.get('dateList', function (value) {
+              console.log('dateList length ', Object.entries(JSON.parse(value)).length);
+              dateList = JSON.parse(value);
+              let daysHeld = JSON.parse(localStorage.getItem("daysHeld"));
+              function addDays(date, days) {
+                var result = new Date(date);
+                result.setDate(result.getDate() + days);
+                return result;
+              }
+              let nextDate = addDays(startDate, parseInt(daysHeld));
+              let nextTrade = dateList.find(date => new Date(date) >= nextDate);
+              ldb.get('itmsByDate', function (value) {
+                  console.log('itmsByDate length ', Object.entries(JSON.parse(value)).length);
+                  itmsByDate = JSON.parse(value);
+                  if(itmsByDate[nextTrade]){
+                    itmsByDate[nextTrade].forEach(trade=>{
+                      let divTotal = total/itmsByDate[nextTrade].length
+                      total = total + divTotal*testArray[trade];
+                    })
+                  }
+                  if(nextTrade){
+                    totals[nextTrade] = total;
+                    return testFunction(new Date(nextTrade), totals, total, fullList, testArray, fullSpy,dateList)
+                  }
+
+                  ldb.set("totals", JSON.stringify(totals));
+                  //localStorage.setItem("totals", JSON.stringify(totals));
+                  plotTotals(totals, fullList, testArray, fullSpy);
+                  document.getElementById("testButton").hidden = true;
+              });
+            });      
+          });  
+        });
+      });
     }
-    let dateList = JSON.parse(localStorage.getItem("dateList"));
-    let itmsByDate = JSON.parse(localStorage.getItem("itmsByDate"));
-    let daysHeld = JSON.parse(localStorage.getItem("daysHeld"));
-    function addDays(date, days) {
-      var result = new Date(date);
-      result.setDate(result.getDate() + days);
-      return result;
+    else{
+      let daysHeld = JSON.parse(localStorage.getItem("daysHeld"));
+      function addDays(date, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+      }
+      let nextDate = addDays(startDate, parseInt(daysHeld));
+      let nextTrade = dateList.find(date => new Date(date) >= nextDate);
+      ldb.get('itmsByDate', function (value) {
+          console.log('itmsByDate length ', Object.entries(JSON.parse(value)).length);
+          itmsByDate = JSON.parse(value);
+          if(itmsByDate[nextTrade]){
+            itmsByDate[nextTrade].forEach(trade=>{
+              let divTotal = total/itmsByDate[nextTrade].length
+              total = total + divTotal*testArray[trade];
+            })
+          }
+          if(nextTrade){
+            totals[nextTrade] = total;
+            return testFunction(new Date(nextTrade), totals, total, fullList, testArray, fullSpy,dateList)
+          }
+
+          ldb.set("totals", JSON.stringify(totals));
+          //localStorage.setItem("totals", JSON.stringify(totals));
+          plotTotals(totals, fullList, testArray, fullSpy);
+          document.getElementById("testButton").hidden = true;
+      });  
     }
-    let nextDate = addDays(startDate, parseInt(daysHeld));
-    let nextTrade = dateList.find(date => new Date(date) >= nextDate);
-    if(itmsByDate[nextTrade]){
-      itmsByDate[nextTrade].forEach(trade=>{
-        let divTotal = total/itmsByDate[nextTrade].length
-        total = total + divTotal*testArray[trade];
-      })
-    }
-    if(nextTrade){
-      totals[nextTrade] = total;
-      return testFunction(new Date(nextTrade), totals, total)
-    }
-    localStorage.setItem("totals", JSON.stringify(totals));
-    plotTotals(totals);
-    document.getElementById("testButton").hidden = true;
   }
 
-  function plotTotals(totals){
-      var xArray = Object.keys(totals);
-      var yArray = Object.values(totals);
+  function plotTotals(totals, fullList, testArray, fullSpy){
+    var xArray = Object.keys(totals);
+    var yArray = Object.values(totals);
+    var spyValues = []; 
+    Object.keys(totals).forEach(itm=>{
+      spyValues.push((fullSpy[itm] * 10000)/Object.entries(fullSpy).sort()[0][1])
+    })
 
-      fullList = JSON.parse(localStorage.getItem("fullList"));
-      testArray = JSON.parse(localStorage.getItem("testArray"));
-      fullSpy = JSON.parse(localStorage.getItem("fullSpy"));
+    
+    // Define Data
+    var data = [{
+      x:xArray,
+      y:yArray,
+      mode:"line",
+      name:"strategy"
+    },
+    {
 
-      var spyValues = []; 
-      Object.keys(totals).forEach(itm=>{
-        spyValues.push((fullSpy[itm] * 10000)/Object.entries(fullSpy).sort()[0][1])
-      })
+      x:Object.keys(totals),
+      y:spyValues,
+      mode:"line",
+      name:"s&p500"
+    }
+    ];
 
-      
-      // Define Data
-      var data = [{
+    if(localStorage.getItem("tradePts")){
+      let tradePts = JSON.parse(localStorage.getItem("tradePts"));
+      data = [{
         x:xArray,
         y:yArray,
         mode:"line",
@@ -125,89 +183,81 @@
         y:spyValues,
         mode:"line",
         name:"s&p500"
+      },
+      {
+        x:[tradePts[0]],
+        y:[yArray[xArray.indexOf(tradePts[0])]],
+        mode:"markers",
+        name:""
       }
-      ];
+      ]   
+    }
+    
+    // Define Layout
+    var layout = { 
+      title: "Date vs. Total"
+    };
 
-      if(localStorage.getItem("tradePts")){
-        let tradePts = JSON.parse(localStorage.getItem("tradePts"));
-        data = [{
-          x:xArray,
-          y:yArray,
-          mode:"line",
-          name:"strategy"
-        },
-        {
-
-          x:Object.keys(totals),
-          y:spyValues,
-          mode:"line",
-          name:"s&p500"
-        },
-        {
-          x:[tradePts[0]],
-          y:[yArray[xArray.indexOf(tradePts[0])]],
-          mode:"markers",
-          name:""
-        }
-        ]   
+    
+    // Display using Plotly
+    Plotly.newPlot("myPlot", data, layout, totals);
+    myPlot.on("plotly_click", function(data){
+      var pts = "";
+      for(var i=0; i < data.points.length; i++){
+          pts = [data.points[i].x, data.points[i].y.toFixed(2)];
       }
-      
-      // Define Layout
-      var layout = { 
-        title: "Date vs. Total"
-      };
+      localStorage.setItem("tradePts", JSON.stringify(pts));
+      const myNode = document.getElementById("buttons");
+      while (myNode.firstChild) {
+        myNode.removeChild(myNode.lastChild);
+      }
+      ldb.get('itmsByDate', function (value) {
+        itmsByDate = JSON.parse(value);
+        ldb.get('testArray', function (value) {
+          testArray = JSON.parse(value);
+          tradeList = itmsByDate[pts[0]];
+          //let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))[pts[0]];
+          
+          let info = document.createElement('h2');
+          info.innerHTML = "Trades from " + pts[0];
+          document.getElementById("buttons").appendChild(info);
 
-      
-      // Display using Plotly
-      Plotly.newPlot("myPlot", data, layout, totals);
-      myPlot.on("plotly_click", function(data){
-        var pts = "";
-        for(var i=0; i < data.points.length; i++){
-            pts = [data.points[i].x, data.points[i].y.toFixed(2)];
-        }
-        localStorage.setItem("tradePts", JSON.stringify(pts));
-        const myNode = document.getElementById("buttons");
-        while (myNode.firstChild) {
-          myNode.removeChild(myNode.lastChild);
-        }
-        let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))[pts[0]];
-        
-        let info = document.createElement('h2');
-        info.innerHTML = "Trades from " + pts[0];
-        document.getElementById("buttons").appendChild(info);
+          tradeList.forEach(itm=>{
+            console.log(itm);
+            let btn = document.createElement('Button');
+            btn.id = itm;
+            btn.innerHTML = itm;
+            let div = document.createElement('div');
+            let percent = testArray[itm]*100
+            div.style.color = percent>0?"green":"red";
+            div.innerHTML = percent.toFixed(4) + " %";
+            document.getElementById("buttons").appendChild(btn);
+            document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
+            document.getElementById("buttons").appendChild(div);
+            let br = document.createElement('br');
+            document.getElementById("buttons").appendChild(br);
 
-        tradeList.forEach(itm=>{
-          console.log(itm);
-          let btn = document.createElement('Button');
-          btn.id = itm;
-          btn.innerHTML = itm;
-          let div = document.createElement('div');
-          let percent = testArray[itm]*100
-          div.style.color = percent>0?"green":"red";
-          div.innerHTML = percent.toFixed(4) + " %";
-          document.getElementById("buttons").appendChild(btn);
-          document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
-          document.getElementById("buttons").appendChild(div);
-          let br = document.createElement('br');
-          document.getElementById("buttons").appendChild(br);
-
-        })
-        plotTotals(totals)
-    });
-   
-
+          })
+          plotTotals(totals, fullList, testArray, fullSpy)
+        });
+      });
+    }); 
   }
   function plotTrade(itm){
     console.log("plotTrade")
     localStorage.setItem("thisTrade", itm);
-    if(localStorage.getItem("fullList")){
-      var tradeDate = itm.split(" ")[0];
-      var tradeInfo = JSON.parse(localStorage.getItem("fullList"))[itm]['rsi']>50?"SELL":"BUY"
-      document.getElementById("thisTrade").value = itm;
-      document.getElementById("tradeInfo").value = tradeInfo;
-      document.getElementById("heldDays").value = JSON.parse(localStorage.getItem("daysHeld"));
-      document.getElementById("trade").submit();
-    }
+    ldb.get('fullList', function (value) {
+        console.log('fullList length ', Object.entries(JSON.parse(value)).length);
+        fullList = JSON.parse(value);
+        if(fullList){
+          var tradeDate = itm.split(" ")[0];
+          var tradeInfo = fullList[itm]['rsi']>50?"SELL":"BUY"
+          document.getElementById("thisTrade").value = itm;
+          document.getElementById("tradeInfo").value = tradeInfo;
+          document.getElementById("heldDays").value = JSON.parse(localStorage.getItem("daysHeld"));
+          document.getElementById("trade").submit();
+        }
+      });
   }
   
 
@@ -311,16 +361,20 @@
   var ult2 = '.json_encode($_POST["ult2"]).';
   document.getElementById("progress").innerHTML = "Total trades analyzed: '.json_encode($count).'"
   try{
-    ldb.set("fullList", JSON.stringify(fullList));
-    localStorage.setItem("fullList", JSON.stringify(fullList));  
+    ldb.set("fullList", JSON.stringify(fullList), function(){
+      console.log("SETTING FULLLIST")
+      });
+    //localStorage.setItem("fullList", JSON.stringify(fullList));  
   } catch (error) {
     console.log(error)
     document.getElementById("message").innerHTML = "TOO MUCH BIGGIDNETSESSS"
     document.getElementById("message2").innerHTML = "NOT SO MANNY PLZ"
     document.getElementById("testButton").hidden = true;
   }
-  localStorage.setItem("testArray", JSON.stringify(testArray));
-  localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
+  ldb.set("testArray", JSON.stringify(testArray));
+  //localStorage.setItem("testArray", JSON.stringify(testArray));
+  ldb.set("fullSpy", JSON.stringify(fullSpy));
+  //localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
   localStorage.setItem("daysHeld", JSON.stringify(daysHeld));
   localStorage.setItem("rsi", JSON.stringify(rsi));
   localStorage.setItem("rsi2", JSON.stringify(rsi2));
@@ -339,31 +393,38 @@
   //close the connection
   mysqli_close($dbhandle);
   echo '<script>
-  document.getElementById("testButton").hidden = false
+  document.getElementById("testButton").hidden = false;
   document.getElementById("submitButton").hidden = false;
   </script>';
   echo '
   <script>
-  fullList = JSON.parse(localStorage.getItem("fullList"));
-  testArray = JSON.parse(localStorage.getItem("testArray"));
-  fullSpy = JSON.parse(localStorage.getItem("fullSpy"));
-  
-  let total = 10000;
-  let dateList = [];
-  let itmsByDate = {};
+  ldb.get("fullList", function (value) {
+        fullList = JSON.parse(value);
+        ldb.get("testArray", function (value) {
+          testArray = JSON.parse(value);
+           ldb.get("fullSpy", function (value) {
+            fullSpy = JSON.parse(value);
+            let total = 10000;
+            let dateList = [];
+            let itmsByDate = {};
 
-  if(fullList){
-    Object.entries(fullList).forEach((itm, idx)=>{
-      let date = itm[1]["Date"].split(" ")[0];
-      if(!dateList.includes(date)){
-        dateList.push(date);
-        itmsByDate[date] = [];
-      }
-      itmsByDate[date].push(Object.entries(fullList)[idx][0])
-    })
-    localStorage.setItem("dateList", JSON.stringify(dateList));
-    localStorage.setItem("itmsByDate", JSON.stringify(itmsByDate));
-  };
+            if(fullList){
+              Object.entries(fullList).forEach((itm, idx)=>{
+                let date = itm[1]["Date"].split(" ")[0];
+                if(!dateList.includes(date)){
+                  dateList.push(date);
+                  itmsByDate[date] = [];
+                }
+                itmsByDate[date].push(Object.entries(fullList)[idx][0])
+              })
+              ldb.set("dateList", JSON.stringify(dateList));
+              //localStorage.setItem("dateList", JSON.stringify(dateList));
+              ldb.set("itmsByDate", JSON.stringify(itmsByDate));
+              //localStorage.setItem("itmsByDate", JSON.stringify(itmsByDate));
+            }; 
+          });
+        });      
+      });
   </script>
   ';
 }
@@ -403,31 +464,34 @@
     echo 
     '
     <script>
-      var percent = JSON.parse(localStorage.getItem("testArray"))['.json_encode($_POST["thisTrade"]).']*100;
-      var gainOf = percent > 0?" gain of ":" loss of ";
-      var percentBlurb = gainOf + percent.toFixed(4) + "%";
-      var xArray = '.json_encode(array_keys($plotArray)).';
-      var yArray = '.json_encode(array_values($plotArray)).';
-      
-      // Define Data
-      var data = [{
-        x:xArray,
-        y:yArray,
-        mode:"line"
-      },
-      {
-        x:['.json_encode($thisDate." 00:00:00").','.json_encode($endTrade[0]).'],
-        y:['.json_encode($plotArray[$thisDate." 00:00:00"]).','.json_encode($endTrade['Close']).'],
-        mode:"markers"
-        }];
-      
-      // Define Layout
-      var layout = { 
-        title: '.json_encode($_POST['thisTrade']).'+" "+'.json_encode($_POST['tradeInfo']).'+percentBlurb
-      };
-      
-      // Display using Plotly
-      Plotly.newPlot("tradePlot", data, layout);
+      ldb.get("testArray", function (value) {
+        testArray = JSON.parse(value);
+        var percent = testArray['.json_encode($_POST["thisTrade"]).']*100;
+        var gainOf = percent > 0?" gain of ":" loss of ";
+        var percentBlurb = gainOf + percent.toFixed(4) + "%";
+        var xArray = '.json_encode(array_keys($plotArray)).';
+        var yArray = '.json_encode(array_values($plotArray)).';
+        
+        // Define Data
+        var data = [{
+          x:xArray,
+          y:yArray,
+          mode:"line"
+        },
+        {
+          x:['.json_encode($thisDate." 00:00:00").','.json_encode($endTrade[0]).'],
+          y:['.json_encode($plotArray[$thisDate." 00:00:00"]).','.json_encode($endTrade['Close']).'],
+          mode:"markers"
+          }];
+        
+        // Define Layout
+        var layout = { 
+          title: '.json_encode($_POST['thisTrade']).'+" "+'.json_encode($_POST['tradeInfo']).'+percentBlurb
+        };
+        
+        // Display using Plotly
+        Plotly.newPlot("tradePlot", data, layout);
+      });
     </script>
     ';
 
@@ -435,30 +499,46 @@
     mysqli_close($dbhandle);
     echo '
     <script>
-      if(localStorage.getItem("totals")){
-        plotTotals(JSON.parse(localStorage.getItem("totals")));
-        document.getElementById("testButton").hidden = true;
-        let tradeList = JSON.parse(localStorage.getItem("itmsByDate"))["'.explode(" ", $_POST["thisTrade"])[0].'"] ;
-        let info = document.createElement("h2");
-        info.innerHTML = "Trades from " + "'.explode(" ", $_POST["thisTrade"])[0].'";
-        document.getElementById("buttons").appendChild(info);
-        tradeList.forEach(itm=>{
-          console.log(itm);
-          let btn = document.createElement("Button");
-          btn.id = itm;
-          btn.innerHTML = itm;
-          let div = document.createElement("div");
-          let percent = testArray[itm]*100
-          div.style.color = percent>0?"green":"red";
-          div.innerHTML = percent.toFixed(4) + " %";
-          document.getElementById("buttons").appendChild(btn);
-          document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
-          document.getElementById("buttons").appendChild(div);
-          let br = document.createElement("br");
-          document.getElementById("buttons").appendChild(br);
+      ldb.get("totals", function (value) {
+        totals = JSON.parse(value);
+        ldb.get("itmsByDate", function (value) {
+          itmsByDate = JSON.parse(value);
+          ldb.get("testArray", function (value) {
+            testArray = JSON.parse(value);
+            ldb.get("fullList", function (value) {
+              fullList = JSON.parse(value);
+              ldb.get("fullSpy", function (value) {
+                fullSpy = JSON.parse(value);
+                if(totals){
+                  plotTotals(totals, fullList, testArray, fullSpy);
+                  document.getElementById("testButton").hidden = true;
+                  let tradeList = itmsByDate["'.explode(" ", $_POST["thisTrade"])[0].'"] ;
+                  console.log(tradeList)
+                  let info = document.createElement("h2");
+                  info.innerHTML = "Trades from " + "'.explode(" ", $_POST["thisTrade"])[0].'";
+                  document.getElementById("buttons").appendChild(info);
+                  tradeList.forEach(itm=>{
+                    console.log(itm);
+                    let btn = document.createElement("Button");
+                    btn.id = itm;
+                    btn.innerHTML = itm;
+                    let div = document.createElement("div");
+                    let percent = testArray[itm]*100
+                    div.style.color = percent>0?"green":"red";
+                    div.innerHTML = percent.toFixed(4) + " %";
+                    document.getElementById("buttons").appendChild(btn);
+                    document.getElementById(itm).setAttribute("onclick", "plotTrade("+JSON.stringify(itm)+")");
+                    document.getElementById("buttons").appendChild(div);
+                    let br = document.createElement("br");
+                    document.getElementById("buttons").appendChild(br);
 
-        })
-      }
+                  })
+                }
+              });
+            });
+          });  
+        });
+      });
     </script
     ';
   }
