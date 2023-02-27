@@ -354,6 +354,7 @@
   echo 
   '
   <script>
+  document.getElementById("testButton").hidden = true;
   var fullList = '.json_encode($fullList).';
   var testArray = '.json_encode($testArray).';
   var fullSpy = '.json_encode($fullSpy).';
@@ -362,21 +363,27 @@
   var rsi2 = '.json_encode($_POST["rsi2"]).';
   var ult = '.json_encode($_POST["ult"]).';
   var ult2 = '.json_encode($_POST["ult2"]).';
+  function callback(){
+    console.log("done")
+    document.getElementById("testButton").hidden = false;
+    document.getElementById("submitButton").hidden = false;
+  }
   document.getElementById("progress").innerHTML = "Total trades analyzed: '.json_encode($count).'"
+  console.log("setting fullList")
   try{
-    ldb.set("fullList", JSON.stringify(fullList), function(){
-      console.log("SETTING FULLLIST")
-      });
+    ldb.set("fullList", JSON.stringify(fullList), callback());
     //localStorage.setItem("fullList", JSON.stringify(fullList));  
   } catch (error) {
     console.log(error)
-    document.getElementById("message").innerHTML = "TOO MUCH BIGGIDNETSESSS"
+    document.getElementById("message").innerHTML = "TOO MUCH BIGGIDNESSS"
     document.getElementById("message2").innerHTML = "NOT SO MANNY PLZ"
     document.getElementById("testButton").hidden = true;
   }
-  ldb.set("testArray", JSON.stringify(testArray));
+  console.log("setting testArray");
+  ldb.set("testArray", JSON.stringify(testArray), callback());
   //localStorage.setItem("testArray", JSON.stringify(testArray));
-  ldb.set("fullSpy", JSON.stringify(fullSpy));
+  console.log("setting fullSpy")
+  ldb.set("fullSpy", JSON.stringify(fullSpy), callback());
   //localStorage.setItem("fullSpy", JSON.stringify(fullSpy));
   localStorage.setItem("daysHeld", JSON.stringify(daysHeld));
   localStorage.setItem("rsi", JSON.stringify(rsi));
@@ -396,8 +403,8 @@
   //close the connection
   mysqli_close($dbhandle);
   echo '<script>
-  document.getElementById("testButton").hidden = false;
-  document.getElementById("submitButton").hidden = false;
+  // document.getElementById("testButton").hidden = false;
+  // document.getElementById("submitButton").hidden = false;
   </script>';
   echo '
   <script>
