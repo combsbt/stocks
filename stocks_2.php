@@ -49,8 +49,10 @@
   <button onclick = "testFunction(document.getElementById('start').value, 0, 10000,0,0,0,0)" id="testButton" hidden="true">Show Plot</button>
 </div>
 <script>
+  // this is for indexedDB ldb.set and ldb.get functions
     !function(){function e(t,o){return n?void(n.transaction("s").objectStore("s").get(t).onsuccess=function(e){var t=e.target.result&&e.target.result.v||null;o(t)}):void setTimeout(function(){e(t,o)},100)}var t=window.indexedDB||window.mozIndexedDB||window.webkitIndexedDB||window.msIndexedDB;if(!t)return void console.error("indexDB not supported");var n,o={k:"",v:""},r=t.open("d2",1);r.onsuccess=function(e){n=this.result},r.onerror=function(e){console.error("indexedDB request error"),console.log(e)},r.onupgradeneeded=function(e){n=null;var t=e.target.result.createObjectStore("s",{keyPath:"k"});t.transaction.oncomplete=function(e){n=e.target.db}},window.ldb={get:e,set:function(e,t){o.k=e,o.v=t,n.transaction("s","readwrite").objectStore("s").put(o)}}}();
     
+  // if there is previous data, fill the input fields and allow showing the plot
     if(localStorage.getItem("startDate")){
       console.log(localStorage.getItem("startDate"));
       document.getElementById("start").value = localStorage.getItem("startDate");
@@ -66,6 +68,7 @@
 <div id="buttons">
 </div>
 <script>
+  // function that calculates all trades and sets 
   function testFunction(startDate, totals, total, fullList, testArray, fullSpy, dateList){
     if (totals === 0){
       totals = {};
@@ -123,12 +126,12 @@
       let nextDate = addDays(startDate, parseInt(daysHeld));
       let nextTrade = dateList.find(date => new Date(date) >= nextDate);
       ldb.get('itmsByDate', function (value) {
-          console.log('itmsByDate length ', Object.entries(JSON.parse(value)).length);
           itmsByDate = JSON.parse(value);
           if(itmsByDate[nextTrade]){
             itmsByDate[nextTrade].forEach(trade=>{
               let divTotal = total/itmsByDate[nextTrade].length
               total = total + divTotal*testArray[trade];
+              console.log('count');
             })
           }
           if(nextTrade){
