@@ -354,6 +354,7 @@
   echo 
   '
   <script>
+  // this shouldnt be here
   document.getElementById("testButton").hidden = true;
   var fullList = '.json_encode($fullList).';
   var testArray = '.json_encode($testArray).';
