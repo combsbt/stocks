@@ -24,13 +24,28 @@
     <input type="number" id="daysHeld" name="daysHeld" value="2" min="1" max="5">
     <br>
     <br>
+    <input type="checkbox" id="xult" name="xult" value="true" checked>
     <span>Ult:</span>
     <input type="number" id="ult" name="ult" value="30" min="1" max="40">
     <input type="number" id="ult2" name="ult2" value="70" min="60" max="99">
     <br>
+    <input type="checkbox" id="xrsi" name="xrsi" value="true" checked>
     <span>RSI:</span>
     <input type="number" id="rsi" name="rsi" value="30" min="1" max="40">
     <input type="number" id="rsi2" name="rsi2" value="70" min="60" max="99">
+    <br>
+    <input type="checkbox" id="xmfi" name="xmfi" value="true">
+    <span>MFI:</span>
+    <input type="number" id="mfi" name="mfi" value="20" min="1" max="40">
+    <input type="number" id="mfi2" name="mfi2" value="80" min="60" max="99">
+    <br>
+    <input type="checkbox" id="xwil" name="xwil" value="true">
+    <span>Wil %R:</span>
+    <input type="number" id="wil" name="wil" value="-80" min="-99" max="-60">
+    <input type="number" id="wil2" name="wil2" value="-20" min="-1" max="-40">
+    <br>
+    <input type="checkbox" id="xband" name="xband" value="true" checked>
+    <span>Bollinger Bands</span>
     <br>
     <input type="submit" name="submitButton" id="submitButton"/>
   </form>
@@ -68,6 +83,7 @@
 <div id="buttons">
 </div>
 <script>
+  // true false for checked box -> document.getElementById("xult").checked
   // function that calculates all trades and sets 
   function testFunction(startDate, totals, total, fullList, testArray, fullSpy, dateList){
     if (totals === 0){
