@@ -317,6 +317,23 @@
   $rsi2 = $_POST['rsi2'];
   $ult = $_POST['ult'];
   $ult2 = $_POST['ult2'];
+  $mfi = $_POST['mfi'];
+  $mfi2 = $_POST['mfi2'];
+  $wil = $_POST['wil'];
+  $wil2 = $_POST['wil2'];
+
+  $sellArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? '$row[0].rsi > $rsi2' : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? '$row[0].ult > $ult2' : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? '$row[0].mfi > $mfi2' : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? '$row[0].wil > $wil2' : null)];
+  echo var_dump(array_filter($sellArray)); 
+  $sellArray = array_filter($sellArray);
+  $sellString = "";
+  foreach($sellArray as $text){
+    $sellString = $sellString.$text." AND ";
+  }
+  $sellString = substr($sellString, 0, -5);
+  echo "<br>";
+  echo var_dump($sellString);
+
+
   while ($row = mysqli_fetch_array($result)) {
     // get rid of tickers with bad names for now
     if( $row[0] != "all" && $row[0] != "brk-b" && $row[0] != "key" && $row[0] != "keys"){
