@@ -11,7 +11,7 @@
 <body style="text-align:center;">
      
   <h1 style="color:green;">
-      STONK$
+      $TONK REVERSAL$
   </h1>
 
   <form method="post">
@@ -42,7 +42,7 @@
     <input type="checkbox" id="xwil" name="xwil" value="true">
     <span>Wil %R:</span>
     <input type="number" id="wil" name="wil" value="-80" min="-99" max="-60">
-    <input type="number" id="wil2" name="wil2" value="-20" min="-1" max="-40">
+    <input type="number" id="wil2" name="wil2" value="-20" min="-40" max="-1">
     <br>
     <input type="checkbox" id="xband" name="xband" value="true" checked>
     <span>Bollinger Bands</span>
@@ -283,6 +283,7 @@
 </script>
 
 <?php
+  // echo var_dump($_POST);
   if(array_key_exists('submitButton', $_POST)) {
   echo '<script>
   document.getElementById("testButton").hidden = true;
@@ -477,10 +478,13 @@
     $endDate = date('Y-m-d', strtotime($thisDate. ' + 20 days'));
     // test 2 days later to see if sell was profitable
     $plotArray = [];
+    $plotBollinger = [];
     $newRes6 = mysqli_query($dbhandle, "SELECT * FROM $ticker WHERE $ticker.Date >= '$startDate' AND $ticker.Date <= '$endDate' ");
     while($test2 = mysqli_fetch_array($newRes6)){
       // echo $test2[0]." ".$test2["Close"]." diff% ".($test2["Close"]-$test["Close"])/$test["Close"]."<br>";
       $plotArray[$test2['Date']] = $test2["Close"];
+      $plotbb_up[$test2['Date']] = $test2["bb_up"];
+      $plotbb_low[$test2['Date']] = $test2["bb_low"];
     }
 
     $testDate = date('Y-m-d', strtotime($thisDate. ' + '.$_POST["heldDays"].' days'));
@@ -498,6 +502,10 @@
         var percentBlurb = gainOf + percent.toFixed(4) + "%";
         var xArray = '.json_encode(array_keys($plotArray)).';
         var yArray = '.json_encode(array_values($plotArray)).';
+        var xbb_up = '.json_encode(array_keys($plotbb_up)).';
+        var ybb_up = '.json_encode(array_values($plotbb_up)).';
+        var xbb_low = '.json_encode(array_keys($plotbb_low)).';
+        var ybb_low = '.json_encode(array_values($plotbb_low)).';
         
         // Define Data
         var data = [{
@@ -509,7 +517,20 @@
           x:['.json_encode($thisDate." 00:00:00").','.json_encode($endTrade[0]).'],
           y:['.json_encode($plotArray[$thisDate." 00:00:00"]).','.json_encode($endTrade['Close']).'],
           mode:"markers"
-          }];
+          },
+        {
+          x:xbb_up,
+          y:ybb_up,
+          mode:"line",
+          name:"bb_hi"
+        },
+        {
+          x:xbb_low,
+          y:ybb_low,
+          mode:"line",
+          name:"bb_low"
+        }
+        ];
         
         // Define Layout
         var layout = { 
