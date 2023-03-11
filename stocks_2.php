@@ -283,7 +283,7 @@
 </script>
 
 <?php
-  // echo var_dump($_POST);
+  //echo var_dump($_POST);
   if(array_key_exists('submitButton', $_POST)) {
   echo '<script>
   document.getElementById("testButton").hidden = true;
@@ -368,6 +368,27 @@
   asort($fullList);
   asort($fullSpy);
 
+  $xband = false;
+  if(array_key_exists('xband', $_POST)){
+    $xband = $_POST["xband"];
+  }
+  $xrsi = false;
+  if(array_key_exists('xrsi', $_POST)){
+    $xrsi = $_POST["xrsi"];
+  }
+  $xult = false;
+  if(array_key_exists('xult', $_POST)){
+    $xult = $_POST["xult"];
+  }
+  $xmfi = false;
+  if(array_key_exists('xmfi', $_POST)){
+    $xmfi = $_POST["xmfi"];
+  }
+  $xwil = false;
+  if(array_key_exists('xwil', $_POST)){
+    $xwil = $_POST["xwil"];
+  }
+
   echo 
   '
   <script>
@@ -381,6 +402,11 @@
   var rsi2 = '.json_encode($_POST["rsi2"]).';
   var ult = '.json_encode($_POST["ult"]).';
   var ult2 = '.json_encode($_POST["ult2"]).';
+  var xband = '.json_encode($xband).';
+  var xrsi = '.json_encode($xrsi).';
+  var xult = '.json_encode($xult).';
+  var xmfi = '.json_encode($xmfi).';
+  var xwil = '.json_encode($xwil).';
   function callback(){
     console.log("done")
     document.getElementById("testButton").hidden = false;
@@ -408,6 +434,11 @@
   localStorage.setItem("rsi2", JSON.stringify(rsi2));
   localStorage.setItem("ult", JSON.stringify(ult));
   localStorage.setItem("ult2", JSON.stringify(ult2));
+  localStorage.setItem("xband", xband);
+  localStorage.setItem("xrsi", xrsi);
+  localStorage.setItem("xult", xult);
+  localStorage.setItem("xmfi", xmfi);
+  localStorage.setItem("xwil", xwil);
   localStorage.setItem("startDate", '.json_encode($startDate).');
   document.getElementById("start").value = '.json_encode($startDate).';
   document.getElementById("rsi").value = '.json_encode($rsi).';
@@ -415,6 +446,37 @@
   document.getElementById("ult").value = '.json_encode($ult).';
   document.getElementById("ult2").value = '.json_encode($ult2).';
   document.getElementById("daysHeld").value = '.json_encode($_POST["daysHeld"]).';
+  if(xband === "true"){
+    document.getElementById("xband").checked = "checked";  
+  }
+  else{
+    document.getElementById("xband").removeAttribute("checked");
+  }
+  if(xrsi === "true"){
+    document.getElementById("xrsi").checked = "checked";  
+  }
+  else{
+    document.getElementById("xrsi").removeAttribute("checked");
+  }
+  if(xult === "true"){
+    document.getElementById("xult").checked = "checked";  
+  }
+  else{
+    document.getElementById("xult").removeAttribute("checked");
+  }
+  if(xmfi === "true"){
+    document.getElementById("xmfi").checked = "checked";  
+  }
+  else{
+    document.getElementById("xmfi").removeAttribute("checked");
+  }
+  if(xwil === "true"){
+    document.getElementById("xwil").checked = "checked";  
+  }
+  else{
+    document.getElementById("xwil").removeAttribute("checked");
+  }
+  
   </script>
   ';
 
