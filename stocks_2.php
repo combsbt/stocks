@@ -83,7 +83,7 @@
 <div id="buttons">
 </div>
 <script>
-  // true false for checked box -> document.getElementById("xult").checked
+  // true or false for checked box -> document.getElementById("xult").checked
   // function that calculates all trades and sets 
   function testFunction(startDate, totals, total, fullList, testArray, fullSpy, dateList){
     if (totals === 0){
