@@ -327,7 +327,7 @@
     if( $row[0] != "all" && $row[0] != "brk-b" && $row[0] != "key" && $row[0] != "keys"){
 
 
-    $sellArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi > $rsi2" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult > $ult2" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi > $mfi2" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil > $wil2" : null)];
+    $sellArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi > $rsi2" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult > $ult2" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi > $mfi2" : null),((array_key_exists('xband', $_POST) && $_POST['xband'] == "true") ? "$row[0].Close > $row[0].bb_up" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil > $wil2" : null)];
     //echo var_dump(array_filter($sellArray)); 
     //remove null values from array
     $sellArray = array_filter($sellArray);
@@ -338,13 +338,13 @@
     $sellString = substr($sellString, 0, -5);
     // echo "<br>";
     // echo var_dump($sellString);
-    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND $row[0].Close > $row[0].bb_up AND ";
+    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ";
     // echo "<br>";
     if($row[0] == "a"){
       echo var_dump($beg.$sellString);
     }
 
-    $buyArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi < $rsi" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult < $ult" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi < $mfi" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil < $wil" : null)]; 
+    $buyArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi < $rsi" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult < $ult" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi < $mfi" : null),((array_key_exists('xband', $_POST) && $_POST['xband'] == "true") ? "$row[0].Close < $row[0].bb_low" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil < $wil" : null)]; 
     //remove null values from array
     $buyArray = array_filter($buyArray);
     $buyString = "";
@@ -352,7 +352,7 @@
       $buyString = $buyString.$text." AND ";
     }
     $buyString = substr($buyString, 0, -5);
-    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND $row[0].Close < $row[0].bb_low AND ";
+    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ";
     // echo "<br>";
     //echo var_dump($beg.$buyString);
     if($row[0] == "a"){
