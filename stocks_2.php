@@ -322,24 +322,40 @@
   $wil = $_POST['wil'];
   $wil2 = $_POST['wil2'];
 
-  $sellArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? '$row[0].rsi > $rsi2' : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? '$row[0].ult > $ult2' : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? '$row[0].mfi > $mfi2' : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? '$row[0].wil > $wil2' : null)];
-  echo var_dump(array_filter($sellArray)); 
-  //remove null values from array
-  $sellArray = array_filter($sellArray);
-  $sellString = "";
-  foreach($sellArray as $text){
-    $sellString = $sellString.$text." AND ";
-  }
-  $sellString = substr($sellString, 0, -5);
-  echo "<br>";
-  echo var_dump($sellString);
-  $beg = 'SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close > $row[0].bb_up AND ';
-  echo "<br>";
-  echo var_dump($beg.$sellString);
-
   while ($row = mysqli_fetch_array($result)) {
     // get rid of tickers with bad names for now
     if( $row[0] != "all" && $row[0] != "brk-b" && $row[0] != "key" && $row[0] != "keys"){
+
+
+    $sellArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi > $rsi2" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult > $ult2" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi > $mfi2" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil > $wil2" : null)];
+    //echo var_dump(array_filter($sellArray)); 
+    //remove null values from array
+    $sellArray = array_filter($sellArray);
+    $sellString = "";
+    foreach($sellArray as $text){
+      $sellString = $sellString.$text." AND ";
+    }
+    $sellString = substr($sellString, 0, -5);
+    // echo "<br>";
+    // echo var_dump($sellString);
+    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close > $row[0].bb_up AND ";
+    // echo "<br>";
+    //echo var_dump($beg.$sellString);
+
+    $buyArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi < $rsi" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult < $ult" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi < $mfi" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil < $wil" : null)]; 
+    //remove null values from array
+    $buyArray = array_filter($buyArray);
+    $buyString = "";
+    foreach($buyArray as $text){
+      $buyString = $buyString.$text." AND ";
+    }
+    $buyString = substr($buyString, 0, -5);
+    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close < $row[0].bb_low AND ";
+    // echo "<br>";
+    //echo var_dump($beg.$buyString);
+
+
+
     if(true){
       // select rows where all 3 indicator conditions are met for selling
       $newRes = mysqli_query($dbhandle, $beg.$sellString);
