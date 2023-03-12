@@ -340,7 +340,9 @@
     // echo var_dump($sellString);
     $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close > $row[0].bb_up AND ";
     // echo "<br>";
-    //echo var_dump($beg.$sellString);
+    if($row[0] == "a"){
+      echo var_dump($beg.$sellString);
+    }
 
     $buyArray = [((array_key_exists('xrsi', $_POST) && $_POST['xrsi'] == "true") ? "$row[0].rsi < $rsi" : null),((array_key_exists('xult', $_POST) && $_POST['xult'] == "true") ? "$row[0].ult < $ult" : null),((array_key_exists('xmfi', $_POST) && $_POST['xmfi'] == "true") ? "$row[0].mfi < $mfi" : null),((array_key_exists('xwil', $_POST) && $_POST['xwil'] == "true") ? "$row[0].wil < $wil" : null)]; 
     //remove null values from array
@@ -350,9 +352,12 @@
       $buyString = $buyString.$text." AND ";
     }
     $buyString = substr($buyString, 0, -5);
-    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close < $row[0].bb_low AND ";
+    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close < $row[0].bb_low AND ";
     // echo "<br>";
     //echo var_dump($beg.$buyString);
+    if($row[0] == "a"){
+      echo var_dump($beg2.$buyString);
+    }
 
 
 
@@ -377,7 +382,7 @@
     }
     if(true){
       // select rows where all 3 indicator conditions are met for buying
-      $newRes3 = mysqli_query($dbhandle, "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ($row[0].ult < $ult AND $row[0].Close < $row[0].bb_low AND $row[0].rsi < $rsi) ");
+      $newRes3 = mysqli_query($dbhandle, $beg2.$buyString);
       while($test = mysqli_fetch_array($newRes3)){
         $count = $count + 1;
         echo "<script>document.getElementById('progress').innerHTML = ".json_encode($count)."</script>";
