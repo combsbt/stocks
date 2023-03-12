@@ -338,7 +338,7 @@
     $sellString = substr($sellString, 0, -5);
     // echo "<br>";
     // echo var_dump($sellString);
-    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close > $row[0].bb_up AND ";
+    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND $row[0].Close > $row[0].bb_up AND ";
     // echo "<br>";
     if($row[0] == "a"){
       echo var_dump($beg.$sellString);
@@ -352,7 +352,7 @@
       $buyString = $buyString.$text." AND ";
     }
     $buyString = substr($buyString, 0, -5);
-    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= $startDate AND $row[0].Close < $row[0].bb_low AND ";
+    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND $row[0].Close < $row[0].bb_low AND ";
     // echo "<br>";
     //echo var_dump($beg.$buyString);
     if($row[0] == "a"){
