@@ -75,6 +75,10 @@
       document.getElementById("rsi2").value = parseInt(JSON.parse(localStorage.getItem("rsi2")));
       document.getElementById("ult").value = parseInt(JSON.parse(localStorage.getItem("ult")));
       document.getElementById("ult2").value = parseInt(JSON.parse(localStorage.getItem("ult2")));
+      document.getElementById("mfi").value = parseInt(JSON.parse(localStorage.getItem("mfi")));
+      document.getElementById("mfi2").value = parseInt(JSON.parse(localStorage.getItem("mfi2")));
+      document.getElementById("wil").value = parseInt(JSON.parse(localStorage.getItem("wil")));
+      document.getElementById("wil2").value = parseInt(JSON.parse(localStorage.getItem("wil2")));
 
       document.getElementById('testButton').hidden = false;
     }
@@ -443,6 +447,10 @@
   var rsi2 = '.json_encode($_POST["rsi2"]).';
   var ult = '.json_encode($_POST["ult"]).';
   var ult2 = '.json_encode($_POST["ult2"]).';
+  var mfi = '.json_encode($_POST["mfi"]).';
+  var mfi2 = '.json_encode($_POST["mfi2"]).';
+  var wil = '.json_encode($_POST["wil"]).';
+  var wil2 = '.json_encode($_POST["wil2"]).';
   var xband = '.json_encode($xband).';
   var xrsi = '.json_encode($xrsi).';
   var xult = '.json_encode($xult).';
@@ -475,6 +483,10 @@
   localStorage.setItem("rsi2", JSON.stringify(rsi2));
   localStorage.setItem("ult", JSON.stringify(ult));
   localStorage.setItem("ult2", JSON.stringify(ult2));
+  localStorage.setItem("mfi", JSON.stringify(mfi));
+  localStorage.setItem("mfi2", JSON.stringify(mfi2));
+  localStorage.setItem("wil", JSON.stringify(wil));
+  localStorage.setItem("wil2", JSON.stringify(wil2));
   localStorage.setItem("xband", xband);
   localStorage.setItem("xrsi", xrsi);
   localStorage.setItem("xult", xult);
@@ -486,6 +498,10 @@
   document.getElementById("rsi2").value = '.json_encode($rsi2).';
   document.getElementById("ult").value = '.json_encode($ult).';
   document.getElementById("ult2").value = '.json_encode($ult2).';
+  document.getElementById("mfi").value = '.json_encode($mfi).';
+  document.getElementById("mfi2").value = '.json_encode($mfi2).';
+  document.getElementById("wil").value = '.json_encode($wil).';
+  document.getElementById("wil2").value = '.json_encode($wil2).';
   document.getElementById("daysHeld").value = '.json_encode($_POST["daysHeld"]).';
   if(xband === "true"){
     document.getElementById("xband").checked = "checked";  
