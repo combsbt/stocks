@@ -16,9 +16,12 @@
 
   <form method="post">
     <label for="start">Start date:</label>
-    <br>
     <input type="date" id="start" name="startDate"
-       value="2021-11-08" min="2015-01-01" max="2023-02-01">
+       value="2021-11-08" min="2015-01-01" max="<?php echo date('Y-m-d'); ?>">
+    <br>
+    <label for="end">End date:</label>
+    <input type="date" id="end" name="endDate"
+       value="<?php echo date('Y-m-d'); ?>" min="2015-01-01" max="<?php echo date('Y-m-d'); ?>">
     <br>
     <label for="daysHeld">Days Held:</label>
     <input type="number" id="daysHeld" name="daysHeld" value="2" min="1" max="5">
