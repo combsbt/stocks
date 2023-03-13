@@ -64,7 +64,7 @@
   <div id="myPlot" style="width:100%;max-width:700px;margin:auto"></div>
   <div id="tradePlot" style="width:100%;max-width:700px;margin:auto"></div>
 <div>
-  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000,0,0,0,0)" id="testButton" hidden="true">Show Plot</button>
+  <button onclick = "testFunction(document.getElementById('start').value, 0, 10000,0,0,0,0, document.getElementById('end').value)" id="testButton" hidden="true">Show Plot</button>
 </div>
 <script>
   // this is for indexedDB ldb.set and ldb.get functions
@@ -74,6 +74,7 @@
     if(localStorage.getItem("startDate")){
       console.log(localStorage.getItem("startDate"));
       document.getElementById("start").value = localStorage.getItem("startDate");
+      document.getElementById("end").value = localStorage.getItem("endDate");
       document.getElementById("rsi").value = parseInt(JSON.parse(localStorage.getItem("rsi")));
       document.getElementById("rsi2").value = parseInt(JSON.parse(localStorage.getItem("rsi2")));
       document.getElementById("ult").value = parseInt(JSON.parse(localStorage.getItem("ult")));
@@ -92,7 +93,7 @@
 <script>
   // true or false for checked box -> document.getElementById("xult").checked
   // function that calculates all trades and sets 
-  function testFunction(startDate, totals, total, fullList, testArray, fullSpy, dateList){
+  function testFunction(startDate, totals, total, fullList, testArray, fullSpy, dateList, endDate){
     if (totals === 0){
       totals = {};
       ldb.get('fullList', function (value) {
@@ -311,8 +312,10 @@
   $result = mysqli_query($dbhandle, "SELECT DISTINCT table_name FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('Date') AND TABLE_SCHEMA='Stocks'" );
 
   $startDate = $_POST['startDate'];
+  $endDate = $_POST['endDate'];
   echo "<script>
   let thisDate = JSON.stringify(".json_encode($startDate).")
+  let thisEndDate = JSON.stringify(".json_encode($endDate).")
   document.getElementById('message').innerHTML = 'Getting data from '+ thisDate
   </script>";
   //fetch tha data from the database 
@@ -345,7 +348,7 @@
     $sellString = substr($sellString, 0, -5);
     // echo "<br>";
     // echo var_dump($sellString);
-    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ";
+    $beg = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND $row[0].Date <= '$endDate' AND ";
     // echo "<br>";
     if($row[0] == "a"){
       echo var_dump($beg.$sellString);
@@ -359,7 +362,7 @@
       $buyString = $buyString.$text." AND ";
     }
     $buyString = substr($buyString, 0, -5);
-    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND ";
+    $beg2 = "SELECT * FROM $row[0] WHERE $row[0].Date >= '$startDate' AND $row[0].Date <= '$endDate' AND ";
     // echo "<br>";
     //echo var_dump($beg.$buyString);
     if($row[0] == "a"){
@@ -406,7 +409,7 @@
       }
     }
     $testSpy = "spy";
-    $newRes5 = mysqli_query($dbhandle, "SELECT * FROM $testSpy WHERE $testSpy.Date >= '$startDate' ");
+    $newRes5 = mysqli_query($dbhandle, "SELECT * FROM $testSpy WHERE $testSpy.Date >= '$startDate' AND $testSpy.Date <= '$endDate' ");
     while($test = mysqli_fetch_array($newRes5)){
       $fullSpy[explode(" ", $test[0])[0]] = $test["Close"];
     }
@@ -496,7 +499,9 @@
   localStorage.setItem("xmfi", xmfi);
   localStorage.setItem("xwil", xwil);
   localStorage.setItem("startDate", '.json_encode($startDate).');
+  localStorage.setItem("endDate", '.json_encode($endDate).');
   document.getElementById("start").value = '.json_encode($startDate).';
+  document.getElementById("end").value = '.json_encode($endDate).';
   document.getElementById("rsi").value = '.json_encode($rsi).';
   document.getElementById("rsi2").value = '.json_encode($rsi2).';
   document.getElementById("ult").value = '.json_encode($ult).';
